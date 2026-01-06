@@ -518,22 +518,103 @@ class ProductManager {
 }
 
 // ============================================
+// GESTOR DE LOGS
+// ============================================
+class LogManager {
+    async fetchLogs() {
+        try {
+            const res = await fetch(`${API_URL}?action=get_logs`);
+            const logs = await res.json();
+            this.render(logs);
+        } catch (err) {
+            console.error(err);
+            Utils.showError('admin-content', 'Error cargando historial de logs');
+        }
+    }
+
+    render(logs) {
+        let html = `
+            <div class="alert alert-info">📜 Historial de acciones de los administradores</div>
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Acción</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        // Check if logs is an array
+        if (!Array.isArray(logs) || logs.length === 0) {
+            html += '<tr><td colspan="4" class="text-center text-muted">No hay registros de actividad</td></tr>';
+        } else {
+            // MAP
+            html += logs.map(l => `
+                <tr>
+                    <td><small>${new Date(l.created_at).toLocaleString('es-ES')}</small></td>
+                    <td>${Utils.escapeHtml(l.user_name || 'Desconocido')} <br><small class="text-muted">${Utils.escapeHtml(l.user_email || '')}</small></td>
+                    <td><span class="badge bg-secondary">${Utils.escapeHtml(l.action)}</span></td>
+                    <td><small>${Utils.escapeHtml(l.details || '-')}</small></td>
+                </tr>
+            `).join('');
+        }
+
+        html += '</tbody></table></div>';
+        document.getElementById('admin-content').innerHTML = html;
+    }
+}
+
+// ============================================
 // GESTOR DE PEDIDOS
 // ============================================
 class OrderManager {
+    constructor() {
+        this.orders = []; // Guardo todos los pedidos aquí para poder filtrar
+    }
+
     async fetchOrders() {
         try {
             const res = await fetch(`${API_URL}?action=get_orders`);
-            const orders = await res.json();
-            this.render(orders);
+            this.orders = await res.json();
+            this.render(); // Renderizo la estructura inicial
+            this.filter(); // Aplico filtros (que al principio estarán vacíos)
         } catch (err) {
             console.error(err);
             Utils.showError('admin-content', 'Error cargando pedidos');
         }
     }
 
-    render(orders) {
-        let html = `
+    render() {
+        // Estructura: Filtros arriba, Tabla abajo
+        const html = `
+            <div class="card bg-secondary mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">🔍 Filtros de Búsqueda</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" id="searchUser" class="form-control" placeholder="Buscar por Cliente o Email..." onkeyup="app.orderManager.filter()">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" id="searchDate" class="form-control" onchange="app.orderManager.filter()">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="sortPrice" class="form-select" onchange="app.orderManager.filter()">
+                                <option value="">Ordenar por Precio</option>
+                                <option value="asc">Menor a Mayor €</option>
+                                <option value="desc">Mayor a Menor €</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                             <button class="btn btn-outline-light w-100" onclick="app.orderManager.resetFilters()">Limpiar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-dark table-hover">
                     <thead>
@@ -546,54 +627,104 @@ class OrderManager {
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="ordersTableBody">
+                        <!-- Aquí se inyectan las filas con JS -->
+                    </tbody>
+                </table>
+            </div>
         `;
 
-        if (orders.length === 0) {
-            html += '<tr><td colspan="6" class="text-center text-muted">No hay pedidos</td></tr>';
-        } else {
-            // MAP
-            html += orders.map(o => {
-                const statusBadge = {
-                    'pending': 'bg-warning text-dark',
-                    'completed': 'bg-success',
-                    'cancelled': 'bg-danger'
-                }[o.status] || 'bg-secondary';
+        document.getElementById('admin-content').innerHTML = html;
+    }
 
-                const statusText = {
-                    'pending': 'Pendiente',
-                    'completed': 'Completado',
-                    'cancelled': 'Cancelado'
-                }[o.status] || o.status;
+    // Función que se ejecuta cada vez que escribo o cambio un input
+    filter() {
+        const searchText = document.getElementById('searchUser').value.toLowerCase();
+        const searchDate = document.getElementById('searchDate').value; // Formato YYYY-MM-DD
+        const sortMode = document.getElementById('sortPrice').value;
 
-                return `
-                    <tr>
-                        <td>#${o.id}</td>
-                        <td>${Utils.escapeHtml(o.user_name || 'Anónimo')}<br><small class="text-muted">${Utils.escapeHtml(o.user_email || '')}</small></td>
-                        <td><strong>${parseFloat(o.total).toFixed(2)}€</strong></td>
-                        <td><span class="badge ${statusBadge}">${statusText}</span></td>
-                        <td><small>${new Date(o.created_at).toLocaleString('es-ES')}</small></td>
-                        <td>
-                            <button class="btn btn-sm btn-info" onclick="app.orderManager.viewOrder(${o.id})">👁️</button>
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                    Estado
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-dark">
-                                    <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'pending')">⏳ Pendiente</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'completed')">✅ Completado</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'cancelled')">❌ Cancelado</a></li>
-                                </ul>
-                            </div>
-                            <button class="btn btn-sm btn-danger" onclick="app.orderManager.deleteOrder(${o.id})">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+        // 1. FILTRAR
+        // Uso funciones de orden superior como map y filter
+        let filtered = this.orders.filter(o => {
+            // Compruebo si el nombre o email coincide
+            const userMatch = (o.user_name || '').toLowerCase().includes(searchText) ||
+                (o.user_email || '').toLowerCase().includes(searchText);
+
+            // Compruebo la fecha (solo si hay fecha seleccionada)
+            let dateMatch = true;
+            if (searchDate) {
+                // La fecha llega con hora "2024-01-01 10:00:00", solo cojo la parte del día
+                const orderDate = o.created_at.split(' ')[0];
+                dateMatch = orderDate === searchDate;
+            }
+
+            return userMatch && dateMatch;
+        });
+
+        // 2. ORDENAR
+        if (sortMode === 'asc') {
+            filtered.sort((a, b) => parseFloat(a.total) - parseFloat(b.total));
+        } else if (sortMode === 'desc') {
+            filtered.sort((a, b) => parseFloat(b.total) - parseFloat(a.total));
         }
 
-        html += '</tbody></table></div>';
-        document.getElementById('admin-content').innerHTML = html;
+        // 3. RENDERIZAR FILAS
+        this.renderTableRows(filtered);
+    }
+
+    resetFilters() {
+        document.getElementById('searchUser').value = '';
+        document.getElementById('searchDate').value = '';
+        document.getElementById('sortPrice').value = '';
+        this.filter(); // Vuelvo a mostrar todo
+    }
+
+    renderTableRows(ordersToRender) {
+        const tbody = document.getElementById('ordersTableBody');
+
+        if (ordersToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No se encontraron pedidos con esos filtros</td></tr>';
+            return;
+        }
+
+        // MAP: Transformo objetos en HTML
+        tbody.innerHTML = ordersToRender.map(o => {
+            const statusBadge = {
+                'pending': 'bg-warning text-dark',
+                'completed': 'bg-success',
+                'cancelled': 'bg-danger'
+            }[o.status] || 'bg-secondary';
+
+            const statusText = {
+                'pending': 'Pendiente',
+                'completed': 'Completado',
+                'cancelled': 'Cancelado'
+            }[o.status] || o.status;
+
+            return `
+                <tr>
+                    <td>#${o.id}</td>
+                    <td>${Utils.escapeHtml(o.user_name || 'Anónimo')}<br><small class="text-muted">${Utils.escapeHtml(o.user_email || '')}</small></td>
+                    <td><strong>${parseFloat(o.total).toFixed(2)}€</strong></td>
+                    <td><span class="badge ${statusBadge}">${statusText}</span></td>
+                    <td><small>${new Date(o.created_at).toLocaleString('es-ES')}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="app.orderManager.viewOrder(${o.id})">👁️</button>
+                        <div class="btn-group">
+                             <button class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                Estado
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'pending')">⏳ Pendiente</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'completed')">✅ Completado</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'cancelled')">❌ Cancelado</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="app.orderManager.deleteOrder(${o.id})">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     async viewOrder(id) {
@@ -687,12 +818,16 @@ class OrderManager {
 // ============================================
 // APLICACIÓN PRINCIPAL
 // ============================================
+// ============================================
+// APLICACIÓN PRINCIPAL
+// ============================================
 class AdminApp {
     constructor() {
         this.dashboardManager = new DashboardManager();
         this.userManager = new UserManager();
         this.productManager = new ProductManager();
         this.orderManager = new OrderManager();
+        this.logManager = new LogManager(); // Nuevo Gestor de Logs
         this.currencyManager = new CurrencyManager(); // API Externa
 
         this.init();
@@ -737,6 +872,10 @@ class AdminApp {
             case 'products':
                 title.innerText = 'Gestión de Productos';
                 this.productManager.fetchProducts();
+                break;
+            case 'logs':
+                title.innerText = 'Historial de Logs';
+                this.logManager.fetchLogs();
                 break;
             default:
                 document.getElementById('admin-content').innerHTML = '<p class="text-muted">Sección no encontrada</p>';

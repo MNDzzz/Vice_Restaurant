@@ -1,10 +1,14 @@
 <?php
 session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once __DIR__ . '/../config/DB.php';
 require_once __DIR__ . '/../dao/UserDAO.php';
 require_once __DIR__ . '/../dao/ProductDAO.php';
 require_once __DIR__ . '/../dao/CategoryDAO.php';
 require_once __DIR__ . '/../dao/OrderDAO.php';
+require_once __DIR__ . '/../dao/LogDAO.php'; // Vital: Añadir LogDAO
 
 header('Content-Type: application/json');
 
@@ -12,6 +16,25 @@ header('Content-Type: application/json');
 $currentUserRole = $_SESSION['user_role'] ?? 'guest';
 $currentUserId = $_SESSION['user_id'] ?? 0;
 $action = $_GET['action'] ?? '';
+
+// Función auxiliar para registrar acciones (Debug activo)
+function logAction($userId, $action, $details = null)
+{
+    // Si el ID es 0 o vacio, lo paso a NULL para evitar error de Foreign Key
+    if (empty($userId) || $userId == 0) {
+        $userId = null;
+    }
+
+    try {
+        $logDAO = new LogDAO();
+        $logDAO->logAction($userId, $action, $details);
+    } catch (Exception $e) {
+        // En producción silenciamos. En el test_log_insert re-lanzaremos esto.
+        if (isset($_GET['action']) && $_GET['action'] === 'test_log_insert') {
+            throw $e;
+        }
+    }
+}
 
 // Función auxiliar para verificar si el usuario puede gestionar al usuario objetivo
 function canManageUser($currentRole, $targetRole)
@@ -74,6 +97,9 @@ if ($action === 'create_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $productDAO = new ProductDAO();
             $createdProduct = $productDAO->create($product);
 
+            // LOG
+            logAction($currentUserId, 'create_product', "Producto creado: " . $data['name']);
+
             echo json_encode(['success' => true, 'id' => $createdProduct->getId()]);
         } catch (PDOException $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -101,6 +127,9 @@ if ($action === 'update_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $productDAO = new ProductDAO();
             $success = $productDAO->update($product);
 
+            // LOG
+            logAction($currentUserId, 'update_product', "Producto actualizado ID: " . $data['id']);
+
             echo json_encode(['success' => $success]);
         } catch (PDOException $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -118,6 +147,9 @@ if ($action === 'delete_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $productDAO = new ProductDAO();
             $success = $productDAO->delete($data['id']);
+
+            // LOG
+            logAction($currentUserId, 'delete_product', "Producto eliminado ID: " . $data['id']);
 
             echo json_encode(['success' => $success]);
         } catch (PDOException $e) {
@@ -467,6 +499,26 @@ if ($action === 'get_stats') {
         $stats['total_revenue'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
         echo json_encode($stats);
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ============================================
+// ENDPOINTS DE LOGS
+// ============================================
+
+if ($action === 'get_logs') {
+    if ($currentUserRole !== 'superadmin' && $currentUserRole !== 'admin') {
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
+    }
+
+    try {
+        $logDAO = new LogDAO();
+        $logs = $logDAO->getAll();
+        echo json_encode($logs);
     } catch (Exception $e) {
         echo json_encode(['error' => $e->getMessage()]);
     }
