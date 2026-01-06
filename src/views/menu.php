@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/DB.php';
+require_once __DIR__ . '/../services/CurrencyService.php';
 $db = DB::getInstance()->getConnection();
 
 // Obtengo las categorías y sus productos
@@ -63,7 +64,7 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
                     <div class="editorial-content-col">
                         <div class="editorial-title"><?php echo htmlspecialchars($prod['name']); ?></div>
                         <div class="editorial-desc"><?php echo htmlspecialchars($prod['description']); ?></div>
-                        <span class="editorial-price"><?php echo number_format($prod['price'], 2); ?>€</span>
+                        <span class="editorial-price"><?php echo CurrencyService::format($prod['price']); ?></span>
 
                         <!-- Botón "Pedir" que actúa como añadir al carrito o redirección -->
                         <button class="btn btn-editorial" onclick='Cart.add({

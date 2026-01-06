@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'index.php?view=login';
                 return;
             }
+            if (targetTab === 'perfil') {
+                window.location.href = 'index.php?view=perfil';
+                return;
+            }
 
             // Elimino la clase active de todas las pestañas y contenidos
             tabs.forEach(t => t.classList.remove('active'));

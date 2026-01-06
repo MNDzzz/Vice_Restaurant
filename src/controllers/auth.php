@@ -99,6 +99,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ../index.php?view=home');
         exit;
     }
+
+    if ($action === 'update_profile') {
+        // Verifico si el usuario está logueado
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ../index.php?view=login');
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $name = $_POST['name'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        if (empty($name) || empty($email)) {
+            header('Location: ../index.php?view=perfil&error=empty');
+            exit;
+        }
+
+        try {
+            $userDAO = new UserDAO();
+
+            // Verifico si el email ya existe en otro usuario
+            if ($email !== $_SESSION['user_email']) {
+                $existingUser = $userDAO->getByEmail($email);
+                if ($existingUser && $existingUser->getId() != $userId) {
+                    header('Location: ../index.php?view=perfil&error=email_exists');
+                    exit;
+                }
+            }
+
+            // Preparo el objeto usuario para actualizar
+            $user = new User([
+                'id' => $userId,
+                'name' => $name,
+                'email' => $email,
+                'password' => !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : null,
+                'role' => $_SESSION['user_role'],
+                'is_active' => 1
+            ]);
+
+            $userDAO->update($user);
+
+            // Actualizo la sesión con los nuevos datos
+            $_SESSION['user_name'] = $name;
+            $_SESSION['user_email'] = $email;
+
+            header('Location: ../index.php?view=perfil&success=updated');
+            exit;
+
+        } catch (Exception $e) {
+            header('Location: ../index.php?view=perfil&error=system');
+            exit;
+        }
+    }
 }
 
 // Si no hay una acción válida, redirijo al inicio

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/DB.php';
+require_once __DIR__ . '/../services/CurrencyService.php';
 $db = DB::getInstance()->getConnection();
 
 // Redirijo si no ha iniciado sesión
@@ -81,14 +82,15 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <span class="text-muted">× <?php echo $item['quantity']; ?></span>
                                             </div>
                                             <div>
-                                                <?php echo number_format($item['price'] * $item['quantity'], 2); ?>€
+                                                <?php echo CurrencyService::format($item['price'] * $item['quantity']); ?>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
                                     <hr>
                                     <div class="d-flex justify-content-between">
                                         <strong>Total:</strong>
-                                        <strong class="text-primary"><?php echo number_format($order['total'], 2); ?>€</strong>
+                                        <strong
+                                            class="text-primary"><?php echo CurrencyService::format($order['total']); ?></strong>
                                     </div>
                                 </div>
                             </div>

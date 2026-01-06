@@ -8,6 +8,7 @@ require_once __DIR__ . '/../dao/UserDAO.php';
 require_once __DIR__ . '/../dao/ProductDAO.php';
 require_once __DIR__ . '/../dao/CategoryDAO.php';
 require_once __DIR__ . '/../dao/OrderDAO.php';
+require_once __DIR__ . '/../dao/ConfigDAO.php';
 require_once __DIR__ . '/../dao/LogDAO.php'; // Vital: Añadir LogDAO
 
 header('Content-Type: application/json');
@@ -501,6 +502,69 @@ if ($action === 'get_stats') {
         echo json_encode($stats);
     } catch (Exception $e) {
         echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ============================================
+// ENDPOINTS DE CONFIGURACIÓN
+// ============================================
+
+if ($action === 'get_config') {
+    try {
+        $configDAO = new ConfigDAO();
+        echo json_encode($configDAO->getAll());
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+if ($action === 'update_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    // Solo admins pueden cambiar configuración
+    if ($currentUserRole !== 'superadmin' && $currentUserRole !== 'admin') {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+
+    try {
+        $configDAO = new ConfigDAO();
+
+        // Si me envían un código de moneda (ej: USD)
+        if (isset($data['currency_code'])) {
+            $code = $data['currency_code'];
+            $rate = 1.0;
+
+            // Si no es Euro, consulto la API
+            if ($code !== 'EUR') {
+                try {
+                    // Obtengo la tasa de cambio actual desde Frankfurter
+                    $apiUrl = "https://api.frankfurter.app/latest?from=EUR&to=" . $code;
+                    // Uso file_get_contents para simplicidad
+                    // Si falla, saltará al catch y dejará la tasa en 1.0
+                    $json = file_get_contents($apiUrl);
+                    $apiData = json_decode($json, true);
+
+                    if (isset($apiData['rates'][$code])) {
+                        $rate = floatval($apiData['rates'][$code]);
+                    }
+                } catch (Exception $e) {
+                    // Si falla la API, registro el error pero sigo (con tasa 1) o lanzo error
+                    error_log("Fallo al obtener tasa de cambio: " . $e->getMessage());
+                }
+            }
+
+            // Guardo el código y la tasa actualizada
+            $configDAO->set('currency_code', $code);
+            $configDAO->set('currency_rate', strval($rate));
+        }
+
+        logAction($currentUserId, 'update_config', "Configuración de moneda actualizada");
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
     exit;
 }

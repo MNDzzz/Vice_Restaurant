@@ -23,16 +23,18 @@
                             </thead>
                             <tbody>
                                 <?php
-                                $total = 0;
+                                require_once __DIR__ . '/../services/DiscountService.php';
+                                require_once __DIR__ . '/../services/CurrencyService.php';
+                                $detalles = DiscountService::calculateDetails($_SESSION['cart']);
+
                                 foreach ($_SESSION['cart'] as $item):
                                     $subtotal = $item['price'] * $item['quantity'];
-                                    $total += $subtotal;
                                     ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($item['name']); ?></td>
-                                        <td><?php echo number_format($item['price'], 2); ?>€</td>
+                                        <td><?php echo CurrencyService::format($item['price']); ?></td>
                                         <td><?php echo $item['quantity']; ?></td>
-                                        <td><?php echo number_format($subtotal, 2); ?>€</td>
+                                        <td><?php echo CurrencyService::format($subtotal); ?></td>
                                         <td>
                                             <form action="controllers/cart_controller.php" method="POST" class="d-inline">
                                                 <input type="hidden" name="action" value="remove">
@@ -46,11 +48,25 @@
                         </table>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-secondary">
-                        <h3 class="text-primary-custom">Total: <?php echo number_format($total, 2); ?>€</h3>
-                        <div>
-                            <a href="index.php?view=carta" class="btn btn-secondary me-2">Seguir Pidiendo</a>
-                            <a href="index.php?view=checkout" class="btn btn-primary">Tramitar Pedido</a>
+                    <div class="mt-4 pt-3 border-top border-secondary">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fs-5">Subtotal:</span>
+                            <span class="fs-5"><?php echo CurrencyService::format($detalles['subtotal']); ?></span>
+                        </div>
+                        <?php if ($detalles['discount'] > 0): ?>
+                            <div class="d-flex justify-content-between mb-2 text-success">
+                                <span class="fs-5">Descuento (<?php echo htmlspecialchars($detalles['promo_name']); ?>):</span>
+                                <span class="fs-5">-<?php echo CurrencyService::format($detalles['discount']); ?></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <h3 class="text-primary-custom">Total:
+                                <?php echo CurrencyService::format($detalles['finalTotal']); ?></h3>
+                            <div>
+                                <a href="index.php?view=carta" class="btn btn-secondary me-2">Seguir Pidiendo</a>
+                                <a href="index.php?view=checkout" class="btn btn-primary">Tramitar Pedido</a>
+                            </div>
                         </div>
                     </div>
                 </div>

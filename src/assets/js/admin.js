@@ -816,78 +816,154 @@ class OrderManager {
 }
 
 // ============================================
-// APLICACIÓN PRINCIPAL
+// GESTOR DE CONFIGURACIÓN
 // ============================================
-// ============================================
-// APLICACIÓN PRINCIPAL
-// ============================================
-class AdminApp {
+class ConfigManager {
     constructor() {
+        this.currentConfig = {
+            currency_code: 'EUR'
+        };
+        this.initListeners();
+    }
+
+    initListeners() {
+        const form = document.getElementById('configForm');
+        if (form) {
+            form.addEventListener('submit', (e) => this.handleSubmit(e));
+        }
+    }
+
+    async fetchConfig() {
+        try {
+            const res = await fetch(`${API_URL}?action=get_config`);
+            const data = await res.json();
+            if (data && !data.error) {
+                // Si viene el código, lo guardo
+                if (data.currency_code) this.currentConfig.currency_code = data.currency_code;
+                // Soporte antiguo (si no hay código, usa EUR por defecto)
+                else if (data.currency_symbol === '€') this.currentConfig.currency_code = 'EUR';
+            }
+        } catch (err) {
+            console.error('Error cargando config:', err);
+        }
+    }
+
+    openModal() {
+        // Pongo el valor en el select
+        document.getElementById('confCurrencyCode').value = this.currentConfig.currency_code;
+        new bootstrap.Modal(document.getElementById('configModal')).show();
+    }
+
+    async handleSubmit(e) {
+        e.preventDefault();
+        // Cojo el código de la moneda seleccionada (USD, GBP...)
+        const data = {
+            currency_code: document.getElementById('confCurrencyCode').value
+        };
+
+        try {
+            const res = await fetch(`${API_URL}?action=update_config`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
+                await this.fetchConfig();
+                // Recargar dashboard
+                if (document.getElementById('section-title').textContent === 'Dashboard') {
+                    app.dashboardManager.load();
+                }
+                alert('Moneda actualizada y tasa de cambio obtenida correctamente');
+            } else {
+                alert('Error: ' + (result.error || 'No se pudo guardar'));
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error de conexión');
+        }
+    }
+}
+
+// ============================================
+// APP PRINCIPAL
+// ============================================
+class App {
+    constructor() {
+        // Inicializo gestores
+        this.currencyManager = new CurrencyManager();
         this.dashboardManager = new DashboardManager();
         this.userManager = new UserManager();
         this.productManager = new ProductManager();
         this.orderManager = new OrderManager();
-        this.logManager = new LogManager(); // Nuevo Gestor de Logs
-        this.currencyManager = new CurrencyManager(); // API Externa
-
-        this.init();
+        this.logManager = new LogManager();
+        this.configManager = new ConfigManager();
     }
 
-    init() {
-        document.addEventListener('DOMContentLoaded', () => {
-            this.productManager.loadCategories(); // Precargar categorías
+    async init() {
+        // Cargar configuración global primero
+        await this.configManager.fetchConfig();
 
-            // localStorage: Recupero la última sección visitada o voy al dashboard
-            const lastSection = localStorage.getItem('adminSection') || 'dashboard';
-            this.loadSection(lastSection);
-        });
+        // Cargar dashboard inicial
+        this.loadSection('dashboard');
     }
 
     loadSection(section) {
-        const title = document.getElementById('section-title');
+        // Actualizo título
+        const titles = {
+            'dashboard': 'Dashboard',
+            'users': 'Gestión de Usuarios',
+            'orders': 'Gestión de Pedidos',
+            'products': 'Gestión de Productos',
+            'logs': 'Historial de Logs'
+        };
+        document.getElementById('section-title').textContent = titles[section] || 'Panel Admin';
 
-        // Actualizo el botón activo
+        // Actualizo botones activos
         document.querySelectorAll('.list-group-item').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${section}`)?.classList.add('active');
+        const btn = document.getElementById(`btn-${section}`);
+        if (btn) btn.classList.add('active');
 
-        // localStorage: Guardo la sección actual
-        localStorage.setItem('adminSection', section);
+        // Limpio configuración highlight
+        document.getElementById('btn-config')?.classList.remove('active');
 
-        // Muestro spinner
+        // Cargo contenido
         Utils.showSpinner('admin-content');
 
-        switch (section) {
-            case 'dashboard':
-                title.innerText = 'Dashboard';
-                this.dashboardManager.load();
-                break;
-            case 'users':
-                title.innerText = 'Gestión de Usuarios';
-                this.userManager.fetchUsers();
-                break;
-            case 'orders':
-                title.innerText = 'Gestión de Pedidos';
-                this.orderManager.fetchOrders();
-                break;
-            case 'products':
-                title.innerText = 'Gestión de Productos';
-                this.productManager.fetchProducts();
-                break;
-            case 'logs':
-                title.innerText = 'Historial de Logs';
-                this.logManager.fetchLogs();
-                break;
-            default:
-                document.getElementById('admin-content').innerHTML = '<p class="text-muted">Sección no encontrada</p>';
-        }
+        setTimeout(() => {
+            switch (section) {
+                case 'dashboard':
+                    this.dashboardManager.load();
+                    break;
+                case 'users':
+                    this.userManager.fetchUsers();
+                    break;
+                case 'orders':
+                    this.orderManager.fetchOrders();
+                    break;
+                case 'products':
+                    this.productManager.fetchProducts();
+                    break;
+                case 'logs':
+                    this.logManager.fetchLogs();
+                    break;
+                default:
+                    document.getElementById('admin-content').innerHTML = '<p class="text-muted">Sección no encontrada</p>';
+            }
+        }, 300); // Pequeño delay para cargar ux
+    }
+
+    openConfigModal() {
+        this.configManager.openModal();
     }
 
     updateCurrency(currency) {
         this.currencyManager.currentCurrency = currency;
-        // Recargo solo el dashboard sin llamar a la API de nuevo
         this.dashboardManager.load();
     }
 }
 
 // Instancia global para ser accesible desde el HTML (onclick)
-const app = new AdminApp();
+const app = new App();
