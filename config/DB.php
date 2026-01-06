@@ -10,7 +10,12 @@ class DB {
 
     private function __construct() {
         try {
-            $this->conn = new PDO("mysql:host={$this->host};dbname={$this->name}", $this->user, $this->pass);
+            $host = getenv('DB_HOST') ?: $this->host;
+            $user = getenv('DB_USER') ?: $this->user;
+            $pass = getenv('DB_PASS') ?: $this->pass;
+            $name = getenv('DB_NAME') ?: $this->name;
+
+            $this->conn = new PDO("mysql:host={$host};dbname={$name}", $user, $pass);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->exec("set names utf8");
         } catch(PDOException $e) {

@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - DB_HOST=db
+      - DB_NAME=vice_db
+      - DB_USER=root
+      - DB_PASS=root
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=vice_db
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./vice_db.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  db_data:
