@@ -17,19 +17,19 @@ $isSuperAdmin = $userRole === 'superadmin';
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         <button class="list-group-item list-group-item-action bg-dark text-light active"
-                            onclick="loadSection('dashboard')" id="btn-dashboard">
+                            onclick="app.loadSection('dashboard')" id="btn-dashboard">
                             📊 Dashboard
                         </button>
                         <button class="list-group-item list-group-item-action bg-dark text-light"
-                            onclick="loadSection('users')" id="btn-users">
+                            onclick="app.loadSection('users')" id="btn-users">
                             👥 Usuarios
                         </button>
                         <button class="list-group-item list-group-item-action bg-dark text-light"
-                            onclick="loadSection('orders')" id="btn-orders">
+                            onclick="app.loadSection('orders')" id="btn-orders">
                             📦 Pedidos
                         </button>
                         <button class="list-group-item list-group-item-action bg-dark text-light"
-                            onclick="loadSection('products')" id="btn-products">
+                            onclick="app.loadSection('products')" id="btn-products">
                             🍔 Productos
                         </button>
                     </div>
