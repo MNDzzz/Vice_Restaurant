@@ -45,7 +45,7 @@ if ($view === 'admin') {
         <div class="container-fluid d-flex justify-content-between align-items-center px-4 py-3">
             <!-- Coloco el logo tipo script a la izquierda -->
             <a class="navbar-brand-script" href="index.php?view=home">
-                <img src="assets/img/common/vice-logo.png" alt="Vice" style="height: 40px;">
+                <img src="assets/img/common/vice-logo.svg" alt="Vice" style="height: 40px;">
             </a>
 
             <!-- Añado los iconos a la derecha -->

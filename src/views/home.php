@@ -277,12 +277,12 @@
 
     <!-- SECCIÓN 1: EDIFICIO CON LOGOTIPO PEQUEÑO -->
     <div class="hero-building-section">
-        <img src="assets/img/common/vice-logo.png" alt="Vice Logo" class="building-logo-small">
+        <img src="assets/img/common/vice-logo.svg" alt="Vice Logo" class="building-logo-small">
     </div>
 
     <!-- SECCIÓN 2: FONDO OSCURO LOGO FRASE -->
     <div class="hero-logo-reveal-section">
-        <img src="assets/img/common/vice-logo.png" alt="Vice Logo" class="logo-large">
+        <img src="assets/img/common/vice-logo.svg" alt="Vice Logo" class="logo-large">
         <div class="hero-text-block">
             <h2 class="hero-title-main">Un Paraíso Neón.</h2>
             <h1 class="hero-subtitle-main">Exclusivo y<br>Frente al Mar.</h1>
