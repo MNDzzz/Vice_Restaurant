@@ -960,15 +960,7 @@ class AdminApp {
         this.userManager = new UserManager();
         this.productManager = new ProductManager();
         this.orderManager = new OrderManager();
-<<<<<<< HEAD
-        this.currencyManager = new CurrencyManager();
-        this.confirmManager = new ConfirmManager(); // Nuevo Gestor
-
         this.init();
-=======
-        this.logManager = new LogManager();
-        this.configManager = new ConfigManager();
->>>>>>> main
     }
 
     async init() {
