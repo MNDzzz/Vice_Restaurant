@@ -173,9 +173,29 @@ $isSuperAdmin = $userRole === 'superadmin';
     </div>
 </div>
 
+<!-- Modal de Confirmación Genérico -->
+<div class="modal fade" id="confirmationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="confirmTitle">Confirmación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="confirmMessage">
+                ¿Estás seguro de realizar esta acción?
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Paso el rol de usuario a JavaScript -->
 <script>
-    const USER_ROLE = '<?php echo $userRole; ?>';
-    const IS_SUPERADMIN = <?php echo $isSuperAdmin ? 'true' : 'false'; ?>;
+        const USER_ROLE = '<?php echo $userRole; ?>';
+        const IS_SUPERADMIN = <?php echo $isSuperAdmin ? 'true' : 'false'; ?>;
 </script>
 <script src="assets/js/admin.js"></script>

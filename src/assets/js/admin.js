@@ -23,6 +23,45 @@ class Utils {
 }
 
 // ============================================
+// GESTOR DE CONFIRMACIONES (MODAL)
+// ============================================
+class ConfirmManager {
+    constructor() {
+        this.modal = null; // Carga diferida
+        this.confirmBtn = document.getElementById('confirmBtn');
+        this.currentCallback = null;
+
+        if (this.confirmBtn) {
+            this.confirmBtn.addEventListener('click', () => {
+                if (this.currentCallback) this.currentCallback();
+                this.hide();
+            });
+        }
+    }
+
+    show(title, message, callback) {
+        if (!this.modal) {
+            const modalEl = document.getElementById('confirmationModal');
+            if (modalEl) this.modal = new bootstrap.Modal(modalEl);
+        }
+
+        if (this.modal) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            this.currentCallback = callback;
+            this.modal.show();
+        } else {
+            // Si falla el modal, uso el nativo
+            if (confirm(message)) callback();
+        }
+    }
+
+    hide() {
+        if (this.modal) this.modal.hide();
+    }
+}
+
+// ============================================
 // GESTOR DE MONEDAS (API EXTERNA)
 // ============================================
 class CurrencyManager {
@@ -34,7 +73,7 @@ class CurrencyManager {
 
     async fetchRates() {
         try {
-            // API Externa: Frankfurter (Para meter diferentes monedas)
+            // Obtener cambio de tasas de monedas
             const res = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD,GBP,JPY');
             const data = await res.json();
             this.rates = { EUR: 1, ...data.rates };
@@ -65,12 +104,14 @@ class DashboardManager {
             const res = await fetch(`${API_URL}?action=get_stats`);
             const stats = await res.json();
 
-            // Cargo tasas si no están cargadas
-            if (Object.keys(app.currencyManager.rates).length === 1) {
-                await app.currencyManager.fetchRates();
-            }
-
             this.render(stats);
+
+            // Para cargar las tasas sin bloquear la página
+            if (Object.keys(app.currencyManager.rates).length === 1) {
+                app.currencyManager.fetchRates().then(() => {
+                    // Cuando lleguen las tasas, ya se actualizarán
+                });
+            }
         } catch (err) {
             console.error(err);
             Utils.showError('admin-content', 'Error cargando estadísticas');
@@ -84,7 +125,7 @@ class DashboardManager {
 
         const content = document.getElementById('admin-content');
 
-        // MAP para generar opciones de moneda
+        // Genero las opciones del selector
         const currencyOptions = app.currencyManager.currencies.map(c =>
             `<option value="${c}" ${c === currency ? 'selected' : ''}>${c}</option>`
         ).join('');
@@ -207,7 +248,7 @@ class UserManager {
         if (users.length === 0) {
             html += '<tr><td colspan="6" class="text-center text-muted">No hay usuarios</td></tr>';
         } else {
-            // MAP
+            // Genero las filas de la tabla
             html += users.map(u => {
                 const roleBadge = {
                     'superadmin': 'bg-danger',
@@ -312,13 +353,19 @@ class UserManager {
     }
 
     async deleteUser(id) {
-        if (!confirm('¿Seguro que quieres eliminar este usuario?')) return;
-        this.performAction('delete_user', { id });
+        app.confirmManager.show(
+            'Eliminar Usuario',
+            '¿Seguro que quieres eliminar este usuario? Esta acción es irreversible.',
+            () => this.performAction('delete_user', { id })
+        );
     }
 
     async toggleAdmin(id) {
-        if (!confirm('¿Cambiar el rol de administrador de este usuario?')) return;
-        this.performAction('toggle_admin', { id });
+        app.confirmManager.show(
+            'Cambiar Rol',
+            '¿Cambiar el rol de administrador de este usuario?',
+            () => this.performAction('toggle_admin', { id })
+        );
     }
 
     async toggleActive(id) {
@@ -340,6 +387,7 @@ class UserManager {
             }
         } catch (err) {
             console.error(err);
+            alert('Error al conectar con el servidor: ' + err.message);
         }
     }
 }
@@ -415,7 +463,7 @@ class ProductManager {
         if (products.length === 0) {
             html += '<tr><td colspan="7" class="text-center text-muted">No hay productos</td></tr>';
         } else {
-            // MAP
+            // Genero las filas de la tabla
             html += products.map(p => `
                 <tr>
                     <td>${p.id}</td>
@@ -496,24 +544,30 @@ class ProductManager {
     }
 
     async deleteProduct(id) {
-        if (!confirm('¿Seguro que quieres eliminar este producto?')) return;
+        app.confirmManager.show(
+            'Eliminar Producto',
+            '¿Seguro que quieres eliminar este producto? Se borrará de los menús.',
+            async () => {
+                try {
+                    console.log('Sending delete request for product:', id);
+                    const res = await fetch(`${API_URL}?action=delete_product`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                    console.log('Delete response status:', res.status);
+                    const result = await res.json();
 
-        try {
-            const res = await fetch(`${API_URL}?action=delete_product`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-            const result = await res.json();
-
-            if (result.success) {
-                this.fetchProducts();
-            } else {
-                alert('Error: ' + (result.error || 'No se pudo eliminar'));
+                    if (result.success) {
+                        this.fetchProducts();
+                    } else {
+                        alert('Error: ' + (result.error || 'No se pudo eliminar'));
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
             }
-        } catch (err) {
-            console.error(err);
-        }
+        );
     }
 }
 
@@ -552,7 +606,7 @@ class OrderManager {
         if (orders.length === 0) {
             html += '<tr><td colspan="6" class="text-center text-muted">No hay pedidos</td></tr>';
         } else {
-            // MAP
+            // Genero las filas de la tabla
             html += orders.map(o => {
                 const statusBadge = {
                     'pending': 'bg-warning text-dark',
@@ -663,24 +717,28 @@ class OrderManager {
     }
 
     async deleteOrder(id) {
-        if (!confirm('¿Seguro que quieres eliminar este pedido?')) return;
+        app.confirmManager.show(
+            'Eliminar Pedido',
+            '¿Seguro que quieres eliminar este pedido?',
+            async () => {
+                try {
+                    const res = await fetch(`${API_URL}?action=delete_order`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                    const result = await res.json();
 
-        try {
-            const res = await fetch(`${API_URL}?action=delete_order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-            const result = await res.json();
-
-            if (result.success) {
-                this.fetchOrders();
-            } else {
-                alert('Error: ' + (result.error || 'No se pudo eliminar'));
+                    if (result.success) {
+                        this.fetchOrders();
+                    } else {
+                        alert('Error: ' + (result.error || 'No se pudo eliminar'));
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
             }
-        } catch (err) {
-            console.error(err);
-        }
+        );
     }
 }
 
@@ -693,7 +751,8 @@ class AdminApp {
         this.userManager = new UserManager();
         this.productManager = new ProductManager();
         this.orderManager = new OrderManager();
-        this.currencyManager = new CurrencyManager(); // API Externa
+        this.currencyManager = new CurrencyManager();
+        this.confirmManager = new ConfirmManager(); // Nuevo Gestor
 
         this.init();
     }
@@ -751,4 +810,5 @@ class AdminApp {
 }
 
 // Instancia global para ser accesible desde el HTML (onclick)
-const app = new AdminApp();
+window.app = new AdminApp();
+console.log('Admin App Initialized', window.app);

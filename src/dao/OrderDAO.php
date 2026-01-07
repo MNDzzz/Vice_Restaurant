@@ -163,8 +163,22 @@ class OrderDAO extends BaseDAO
 
     public function delete($id)
     {
-        // Los artículos del pedido se eliminarán automáticamente por el ON DELETE CASCADE
-        return $this->deleteById($id);
+        try {
+            $this->db->beginTransaction();
+
+            // Eliminar items del pedido
+            $stmt = $this->db->prepare("DELETE FROM order_items WHERE order_id = ?");
+            $stmt->execute([$id]);
+
+            // Eliminar el pedido
+            $result = $this->deleteById($id);
+
+            $this->db->commit();
+            return $result;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 }
 ?>

@@ -13,7 +13,9 @@ $currentUserRole = $_SESSION['user_role'] ?? 'guest';
 $currentUserId = $_SESSION['user_id'] ?? 0;
 $action = $_GET['action'] ?? '';
 
-// Función auxiliar para verificar si el usuario puede gestionar al usuario objetivo
+
+// Funciones para verificar que el usuario puede gestionar a otro usuario
+// ============================================
 function canManageUser($currentRole, $targetRole)
 {
     if ($currentRole === 'superadmin') {
@@ -95,14 +97,14 @@ if ($action === 'update_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 'description' => $data['description'] ?? '',
                 'price' => $data['price'],
                 'image' => $data['image'] ?? 'img/default-product.jpg',
-                'category_id' => $data['category_id'] ?? null
+                'category_id' => !empty($data['category_id']) ? $data['category_id'] : null
             ]);
 
             $productDAO = new ProductDAO();
             $success = $productDAO->update($product);
 
             echo json_encode(['success' => $success]);
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
     } else {
@@ -120,8 +122,12 @@ if ($action === 'delete_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = $productDAO->delete($data['id']);
 
             echo json_encode(['success' => $success]);
-        } catch (PDOException $e) {
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        } catch (Exception $e) {
+            if ($e->getCode() == '23000' && strpos($e->getMessage(), '1451') !== false) {
+                echo json_encode(['success' => false, 'error' => 'No se puede eliminar: Este producto está en pedidos realizados.']);
+            } else {
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            }
         }
     } else {
         echo json_encode(['success' => false, 'error' => 'Missing ID']);
@@ -221,7 +227,7 @@ if ($action === 'create_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $createdUser = $userDAO->create($user);
 
             echo json_encode(['success' => true, 'id' => $createdUser->getId()]);
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             if (strpos($e->getMessage(), 'Duplicate') !== false) {
                 echo json_encode(['success' => false, 'error' => 'El email ya está registrado']);
             } else {
@@ -247,10 +253,10 @@ if ($action === 'update_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            // Verifico si un administrador está intentando cambiar el rol a admin/superadmin
+            // Evito que un admin cree otros admins
             $newRole = $data['role'] ?? $targetUser->getRole();
             if ($currentUserRole === 'admin' && $newRole !== 'user') {
-                $newRole = 'user'; // Fuerzo el rol de usuario si el administrador intenta escalar privilegios
+                $newRole = 'user';
             }
 
             $user = new User([
@@ -265,7 +271,7 @@ if ($action === 'update_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = $userDAO->update($user);
 
             echo json_encode(['success' => $success]);
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
     } else {
@@ -296,7 +302,7 @@ if ($action === 'delete_user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = $userDAO->delete($data['id']);
 
             echo json_encode(['success' => $success]);
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
     } else {
@@ -309,9 +315,9 @@ if ($action === 'toggle_admin' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
 
     if (isset($data['id'])) {
-        // Solo el superadministrador puede alternar el estado de administrador
+        // Solo el superadmin tiene poder para cambiar roles
         if ($currentUserRole !== 'superadmin') {
-            echo json_encode(['success' => false, 'error' => 'Solo el superadmin puede cambiar roles de administrador']);
+            echo json_encode(['success' => false, 'error' => 'No tienes permisos para cambiar roles']);
             exit;
         }
 
@@ -410,7 +416,7 @@ if ($action === 'update_order_status' && $_SERVER['REQUEST_METHOD'] === 'POST') 
             $success = $orderDAO->updateStatus($data['id'], $data['status']);
 
             echo json_encode(['success' => $success]);
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
     } else {
@@ -428,7 +434,7 @@ if ($action === 'delete_order' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = $orderDAO->delete($data['id']);
 
             echo json_encode(['success' => $success]);
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
     } else {

@@ -52,9 +52,12 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col-md-6 col-lg-4 product-item" data-category="<?php echo $prod['category_id']; ?>">
                             <div class="card h-100">
                                 <?php
-                                $img_path = str_replace('views/images/', 'assets/img/', $prod['image']);
-                                if (strpos($img_path, 'assets/img/') === false && strpos($img_path, 'http') === false) {
-                                    $img_path = 'assets/img/' . $img_path;
+                                $imgName = basename($prod['image']);
+                                $img_path = 'assets/img/menu/products/' . $imgName;
+
+                                // Fallback por si la imagen no existe
+                                if (!file_exists(__DIR__ . '/../' . $img_path)) {
+                                    $img_path = 'assets/img/default-product.jpg';
                                 }
                                 ?>
                                 <img src="<?php echo htmlspecialchars($img_path); ?>" class="card-img-top"

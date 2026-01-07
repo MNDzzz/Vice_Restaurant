@@ -47,10 +47,17 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
         <div class="editorial-container">
             <?php foreach ($products as $prod): ?>
                 <?php
-                $prodImg = str_replace('views/images/', 'assets/img/', $prod['image']);
-                // Aseguro una imagen válida
-                if (strpos($prodImg, 'assets/img/') === false && strpos($prodImg, 'http') === false) {
-                    $prodImg = 'assets/img/' . $prodImg;
+                // Estandarización de rutas de imagen (Igual que en pedir.php)
+                $filename = basename($prod['image']);
+                $prodImg = 'assets/img/menu/products/' . $filename;
+
+                // Si no existe la imagen, busca otra alternativa
+                if (!file_exists(__DIR__ . '/../' . $prodImg)) {
+                    // Prueba en la carpeta raíz
+                    $fallback = 'assets/img/' . $filename;
+                    if (file_exists(__DIR__ . '/../' . $fallback)) {
+                        $prodImg = $fallback;
+                    }
                 }
                 ?>
                 <div class="editorial-row reveal-row">
