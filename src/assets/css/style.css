@@ -1020,9 +1020,6 @@ footer {
     text-shadow: 0 0 20px var(--color-primary), 0 0 40px var(--color-primary);
     letter-spacing: 5px;
     text-align: center;
-    opacity: 0;
-    /* Revelación JS */
-    transform: translateY(30px);
 }
 
 /* Diseño editorial de productos */
@@ -1038,9 +1035,6 @@ footer {
     justify-content: space-between;
     margin-bottom: 120px;
     gap: 60px;
-    opacity: 0;
-    /* Revelación JS */
-    transform: translateY(50px);
 }
 
 /* Diseño alterno */
