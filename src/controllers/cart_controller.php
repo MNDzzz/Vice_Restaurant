@@ -63,6 +63,8 @@ if ($action === 'add') {
     $totals = DiscountService::calculateDetails($_SESSION['cart']);
     $finalTotal = $totals['finalTotal'];
 
+    // ==========================================
+
     // Obtengo la información de entrega
     $delivery_name = $_POST['delivery_name'] ?? '';
     $delivery_phone = $_POST['delivery_phone'] ?? '';

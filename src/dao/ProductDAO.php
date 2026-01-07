@@ -2,12 +2,14 @@
 require_once __DIR__ . '/BaseDAO.php';
 require_once __DIR__ . '/../models/Product.php';
 
-class ProductDAO extends BaseDAO {
+class ProductDAO extends BaseDAO
+{
     protected $table = 'products';
 
-    public function getAll() {
+    public function getAll()
+    {
         $stmt = $this->db->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.id DESC");
-        
+
         $products = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $products[] = new Product($row);
@@ -15,15 +17,17 @@ class ProductDAO extends BaseDAO {
         return $products;
     }
 
-    public function getById($id) {
+    public function getById($id)
+    {
         $data = $this->findById($id);
         return $data ? new Product($data) : null;
     }
 
-    public function getByCategoryId($categoryId) {
+    public function getByCategoryId($categoryId)
+    {
         $stmt = $this->db->prepare("SELECT * FROM products WHERE category_id = ? ORDER BY id ASC");
         $stmt->execute([$categoryId]);
-        
+
         $products = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $products[] = new Product($row);
@@ -31,7 +35,8 @@ class ProductDAO extends BaseDAO {
         return $products;
     }
 
-    public function create(Product $product) {
+    public function create(Product $product)
+    {
         $stmt = $this->db->prepare("INSERT INTO products (name, description, price, image, category_id) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([
             $product->getName(),
@@ -44,7 +49,8 @@ class ProductDAO extends BaseDAO {
         return $product;
     }
 
-    public function update(Product $product) {
+    public function update(Product $product)
+    {
         $stmt = $this->db->prepare("UPDATE products SET name = ?, description = ?, price = ?, image = ?, category_id = ? WHERE id = ?");
         return $stmt->execute([
             $product->getName(),
@@ -56,8 +62,24 @@ class ProductDAO extends BaseDAO {
         ]);
     }
 
-    public function delete($id) {
-        return $this->deleteById($id);
+    public function delete($id)
+    {
+        try {
+            $this->db->beginTransaction();
+
+            // 1. Eliminar referencias en order_items (Historial de pedidos)
+            $stmt = $this->db->prepare("DELETE FROM order_items WHERE product_id = ?");
+            $stmt->execute([$id]);
+
+            // 2. Eliminar el producto
+            $result = $this->deleteById($id);
+
+            $this->db->commit();
+            return $result;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 }
 ?>

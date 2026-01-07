@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $userDAO = new UserDAO();
 
-            // Verifico si el email ya existe en otro usuario
+            // Verifico si el email ya existe en otro usuario (si lo ha cambiado)
             if ($email !== $_SESSION['user_email']) {
                 $existingUser = $userDAO->getByEmail($email);
                 if ($existingUser && $existingUser->getId() != $userId) {
@@ -130,13 +130,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Preparo el objeto usuario para actualizar
+            // (La contraseña solo se hashea si no está vacía, UserDAO maneja esto)
             $user = new User([
                 'id' => $userId,
                 'name' => $name,
                 'email' => $email,
                 'password' => !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : null,
-                'role' => $_SESSION['user_role'],
-                'is_active' => 1
+                'role' => $_SESSION['user_role'], // Mantenemos rol actual
+                'is_active' => 1 // Mantenemos activo
             ]);
 
             $userDAO->update($user);
@@ -144,6 +145,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Actualizo la sesión con los nuevos datos
             $_SESSION['user_name'] = $name;
             $_SESSION['user_email'] = $email;
+
+            // TODO: LOG (Necesitaría importar api.php o LogDAO aquí, pero auth.php es independiente)
+            // Por simplicidad en auth, no estamos logueando la auditoría de cambio de perfil,
+            // pero podríamos añadir "require_once dao/LogDAO.php" si fuera crítico.
 
             header('Location: ../index.php?view=perfil&success=updated');
             exit;

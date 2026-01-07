@@ -23,6 +23,45 @@ class Utils {
 }
 
 // ============================================
+// GESTOR DE CONFIRMACIONES (MODAL)
+// ============================================
+class ConfirmManager {
+    constructor() {
+        this.modal = null; // Lazy load
+        this.confirmBtn = document.getElementById('confirmBtn');
+        this.currentCallback = null;
+
+        if (this.confirmBtn) {
+            this.confirmBtn.addEventListener('click', () => {
+                if (this.currentCallback) this.currentCallback();
+                this.hide();
+            });
+        }
+    }
+
+    show(title, message, callback) {
+        if (!this.modal) {
+            const modalEl = document.getElementById('confirmationModal');
+            if (modalEl) this.modal = new bootstrap.Modal(modalEl);
+        }
+
+        if (this.modal) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            this.currentCallback = callback;
+            this.modal.show();
+        } else {
+            // Fallback si no hay modal (no debería pasar)
+            if (confirm(message)) callback();
+        }
+    }
+
+    hide() {
+        if (this.modal) this.modal.hide();
+    }
+}
+
+// ============================================
 // GESTOR DE MONEDAS (API EXTERNA)
 // ============================================
 class CurrencyManager {
@@ -65,12 +104,16 @@ class DashboardManager {
             const res = await fetch(`${API_URL}?action=get_stats`);
             const stats = await res.json();
 
-            // Cargo tasas si no están cargadas
-            if (Object.keys(app.currencyManager.rates).length === 1) {
-                await app.currencyManager.fetchRates();
-            }
-
             this.render(stats);
+
+            // Cargo tasas en segundo plano (non-blocking)
+            if (Object.keys(app.currencyManager.rates).length === 1) {
+                app.currencyManager.fetchRates().then(() => {
+                    // Re-renderizo si llegan las tasas (opcional, o solo actualizo el selector)
+                    // De momento no fuerzo re-render para no parpadear, 
+                    // ya que el default es EUR y eso ya se renderizó.
+                });
+            }
         } catch (err) {
             console.error(err);
             Utils.showError('admin-content', 'Error cargando estadísticas');
@@ -312,13 +355,19 @@ class UserManager {
     }
 
     async deleteUser(id) {
-        if (!confirm('¿Seguro que quieres eliminar este usuario?')) return;
-        this.performAction('delete_user', { id });
+        app.confirmManager.show(
+            'Eliminar Usuario',
+            '¿Seguro que quieres eliminar este usuario? Esta acción es irreversible.',
+            () => this.performAction('delete_user', { id })
+        );
     }
 
     async toggleAdmin(id) {
-        if (!confirm('¿Cambiar el rol de administrador de este usuario?')) return;
-        this.performAction('toggle_admin', { id });
+        app.confirmManager.show(
+            'Cambiar Rol',
+            '¿Cambiar el rol de administrador de este usuario?',
+            () => this.performAction('toggle_admin', { id })
+        );
     }
 
     async toggleActive(id) {
@@ -340,6 +389,7 @@ class UserManager {
             }
         } catch (err) {
             console.error(err);
+            alert('Error al conectar con el servidor: ' + err.message);
         }
     }
 }
@@ -496,75 +546,30 @@ class ProductManager {
     }
 
     async deleteProduct(id) {
-        if (!confirm('¿Seguro que quieres eliminar este producto?')) return;
+        app.confirmManager.show(
+            'Eliminar Producto',
+            '¿Seguro que quieres eliminar este producto? Se borrará de los menús.',
+            async () => {
+                try {
+                    console.log('Sending delete request for product:', id);
+                    const res = await fetch(`${API_URL}?action=delete_product`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                    console.log('Delete response status:', res.status);
+                    const result = await res.json();
 
-        try {
-            const res = await fetch(`${API_URL}?action=delete_product`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-            const result = await res.json();
-
-            if (result.success) {
-                this.fetchProducts();
-            } else {
-                alert('Error: ' + (result.error || 'No se pudo eliminar'));
+                    if (result.success) {
+                        this.fetchProducts();
+                    } else {
+                        alert('Error: ' + (result.error || 'No se pudo eliminar'));
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
             }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-}
-
-// ============================================
-// GESTOR DE LOGS
-// ============================================
-class LogManager {
-    async fetchLogs() {
-        try {
-            const res = await fetch(`${API_URL}?action=get_logs`);
-            const logs = await res.json();
-            this.render(logs);
-        } catch (err) {
-            console.error(err);
-            Utils.showError('admin-content', 'Error cargando historial de logs');
-        }
-    }
-
-    render(logs) {
-        let html = `
-            <div class="alert alert-info">📜 Historial de acciones de los administradores</div>
-            <div class="table-responsive">
-                <table class="table table-dark table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Usuario</th>
-                            <th>Acción</th>
-                            <th>Detalle</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-
-        // Check if logs is an array
-        if (!Array.isArray(logs) || logs.length === 0) {
-            html += '<tr><td colspan="4" class="text-center text-muted">No hay registros de actividad</td></tr>';
-        } else {
-            // MAP
-            html += logs.map(l => `
-                <tr>
-                    <td><small>${new Date(l.created_at).toLocaleString('es-ES')}</small></td>
-                    <td>${Utils.escapeHtml(l.user_name || 'Desconocido')} <br><small class="text-muted">${Utils.escapeHtml(l.user_email || '')}</small></td>
-                    <td><span class="badge bg-secondary">${Utils.escapeHtml(l.action)}</span></td>
-                    <td><small>${Utils.escapeHtml(l.details || '-')}</small></td>
-                </tr>
-            `).join('');
-        }
-
-        html += '</tbody></table></div>';
-        document.getElementById('admin-content').innerHTML = html;
+        );
     }
 }
 
@@ -572,49 +577,19 @@ class LogManager {
 // GESTOR DE PEDIDOS
 // ============================================
 class OrderManager {
-    constructor() {
-        this.orders = []; // Guardo todos los pedidos aquí para poder filtrar
-    }
-
     async fetchOrders() {
         try {
             const res = await fetch(`${API_URL}?action=get_orders`);
-            this.orders = await res.json();
-            this.render(); // Renderizo la estructura inicial
-            this.filter(); // Aplico filtros (que al principio estarán vacíos)
+            const orders = await res.json();
+            this.render(orders);
         } catch (err) {
             console.error(err);
             Utils.showError('admin-content', 'Error cargando pedidos');
         }
     }
 
-    render() {
-        // Estructura: Filtros arriba, Tabla abajo
-        const html = `
-            <div class="card bg-secondary mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">🔍 Filtros de Búsqueda</h5>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <input type="text" id="searchUser" class="form-control" placeholder="Buscar por Cliente o Email..." onkeyup="app.orderManager.filter()">
-                        </div>
-                        <div class="col-md-3">
-                            <input type="date" id="searchDate" class="form-control" onchange="app.orderManager.filter()">
-                        </div>
-                        <div class="col-md-3">
-                            <select id="sortPrice" class="form-select" onchange="app.orderManager.filter()">
-                                <option value="">Ordenar por Precio</option>
-                                <option value="asc">Menor a Mayor €</option>
-                                <option value="desc">Mayor a Menor €</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                             <button class="btn btn-outline-light w-100" onclick="app.orderManager.resetFilters()">Limpiar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+    render(orders) {
+        let html = `
             <div class="table-responsive">
                 <table class="table table-dark table-hover">
                     <thead>
@@ -627,104 +602,54 @@ class OrderManager {
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="ordersTableBody">
-                        <!-- Aquí se inyectan las filas con JS -->
-                    </tbody>
-                </table>
-            </div>
+                    <tbody>
         `;
 
+        if (orders.length === 0) {
+            html += '<tr><td colspan="6" class="text-center text-muted">No hay pedidos</td></tr>';
+        } else {
+            // MAP
+            html += orders.map(o => {
+                const statusBadge = {
+                    'pending': 'bg-warning text-dark',
+                    'completed': 'bg-success',
+                    'cancelled': 'bg-danger'
+                }[o.status] || 'bg-secondary';
+
+                const statusText = {
+                    'pending': 'Pendiente',
+                    'completed': 'Completado',
+                    'cancelled': 'Cancelado'
+                }[o.status] || o.status;
+
+                return `
+                    <tr>
+                        <td>#${o.id}</td>
+                        <td>${Utils.escapeHtml(o.user_name || 'Anónimo')}<br><small class="text-muted">${Utils.escapeHtml(o.user_email || '')}</small></td>
+                        <td><strong>${parseFloat(o.total).toFixed(2)}€</strong></td>
+                        <td><span class="badge ${statusBadge}">${statusText}</span></td>
+                        <td><small>${new Date(o.created_at).toLocaleString('es-ES')}</small></td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="app.orderManager.viewOrder(${o.id})">👁️</button>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                    Estado
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark">
+                                    <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'pending')">⏳ Pendiente</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'completed')">✅ Completado</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'cancelled')">❌ Cancelado</a></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-sm btn-danger" onclick="app.orderManager.deleteOrder(${o.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        html += '</tbody></table></div>';
         document.getElementById('admin-content').innerHTML = html;
-    }
-
-    // Función que se ejecuta cada vez que escribo o cambio un input
-    filter() {
-        const searchText = document.getElementById('searchUser').value.toLowerCase();
-        const searchDate = document.getElementById('searchDate').value; // Formato YYYY-MM-DD
-        const sortMode = document.getElementById('sortPrice').value;
-
-        // 1. FILTRAR
-        // Uso funciones de orden superior como map y filter
-        let filtered = this.orders.filter(o => {
-            // Compruebo si el nombre o email coincide
-            const userMatch = (o.user_name || '').toLowerCase().includes(searchText) ||
-                (o.user_email || '').toLowerCase().includes(searchText);
-
-            // Compruebo la fecha (solo si hay fecha seleccionada)
-            let dateMatch = true;
-            if (searchDate) {
-                // La fecha llega con hora "2024-01-01 10:00:00", solo cojo la parte del día
-                const orderDate = o.created_at.split(' ')[0];
-                dateMatch = orderDate === searchDate;
-            }
-
-            return userMatch && dateMatch;
-        });
-
-        // 2. ORDENAR
-        if (sortMode === 'asc') {
-            filtered.sort((a, b) => parseFloat(a.total) - parseFloat(b.total));
-        } else if (sortMode === 'desc') {
-            filtered.sort((a, b) => parseFloat(b.total) - parseFloat(a.total));
-        }
-
-        // 3. RENDERIZAR FILAS
-        this.renderTableRows(filtered);
-    }
-
-    resetFilters() {
-        document.getElementById('searchUser').value = '';
-        document.getElementById('searchDate').value = '';
-        document.getElementById('sortPrice').value = '';
-        this.filter(); // Vuelvo a mostrar todo
-    }
-
-    renderTableRows(ordersToRender) {
-        const tbody = document.getElementById('ordersTableBody');
-
-        if (ordersToRender.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No se encontraron pedidos con esos filtros</td></tr>';
-            return;
-        }
-
-        // MAP: Transformo objetos en HTML
-        tbody.innerHTML = ordersToRender.map(o => {
-            const statusBadge = {
-                'pending': 'bg-warning text-dark',
-                'completed': 'bg-success',
-                'cancelled': 'bg-danger'
-            }[o.status] || 'bg-secondary';
-
-            const statusText = {
-                'pending': 'Pendiente',
-                'completed': 'Completado',
-                'cancelled': 'Cancelado'
-            }[o.status] || o.status;
-
-            return `
-                <tr>
-                    <td>#${o.id}</td>
-                    <td>${Utils.escapeHtml(o.user_name || 'Anónimo')}<br><small class="text-muted">${Utils.escapeHtml(o.user_email || '')}</small></td>
-                    <td><strong>${parseFloat(o.total).toFixed(2)}€</strong></td>
-                    <td><span class="badge ${statusBadge}">${statusText}</span></td>
-                    <td><small>${new Date(o.created_at).toLocaleString('es-ES')}</small></td>
-                    <td>
-                        <button class="btn btn-sm btn-info" onclick="app.orderManager.viewOrder(${o.id})">👁️</button>
-                        <div class="btn-group">
-                             <button class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                Estado
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'pending')">⏳ Pendiente</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'completed')">✅ Completado</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="app.orderManager.updateStatus(${o.id}, 'cancelled')">❌ Cancelado</a></li>
-                            </ul>
-                        </div>
-                        <button class="btn btn-sm btn-danger" onclick="app.orderManager.deleteOrder(${o.id})">🗑️</button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
     }
 
     async viewOrder(id) {
@@ -794,176 +719,98 @@ class OrderManager {
     }
 
     async deleteOrder(id) {
-        if (!confirm('¿Seguro que quieres eliminar este pedido?')) return;
+        app.confirmManager.show(
+            'Eliminar Pedido',
+            '¿Seguro que quieres eliminar este pedido?',
+            async () => {
+                try {
+                    const res = await fetch(`${API_URL}?action=delete_order`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                    const result = await res.json();
 
-        try {
-            const res = await fetch(`${API_URL}?action=delete_order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-            const result = await res.json();
-
-            if (result.success) {
-                this.fetchOrders();
-            } else {
-                alert('Error: ' + (result.error || 'No se pudo eliminar'));
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-}
-
-// ============================================
-// GESTOR DE CONFIGURACIÓN
-// ============================================
-class ConfigManager {
-    constructor() {
-        this.currentConfig = {
-            currency_code: 'EUR'
-        };
-        this.initListeners();
-    }
-
-    initListeners() {
-        const form = document.getElementById('configForm');
-        if (form) {
-            form.addEventListener('submit', (e) => this.handleSubmit(e));
-        }
-    }
-
-    async fetchConfig() {
-        try {
-            const res = await fetch(`${API_URL}?action=get_config`);
-            const data = await res.json();
-            if (data && !data.error) {
-                // Si viene el código, lo guardo
-                if (data.currency_code) this.currentConfig.currency_code = data.currency_code;
-                // Soporte antiguo (si no hay código, usa EUR por defecto)
-                else if (data.currency_symbol === '€') this.currentConfig.currency_code = 'EUR';
-            }
-        } catch (err) {
-            console.error('Error cargando config:', err);
-        }
-    }
-
-    openModal() {
-        // Pongo el valor en el select
-        document.getElementById('confCurrencyCode').value = this.currentConfig.currency_code;
-        new bootstrap.Modal(document.getElementById('configModal')).show();
-    }
-
-    async handleSubmit(e) {
-        e.preventDefault();
-        // Cojo el código de la moneda seleccionada (USD, GBP...)
-        const data = {
-            currency_code: document.getElementById('confCurrencyCode').value
-        };
-
-        try {
-            const res = await fetch(`${API_URL}?action=update_config`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await res.json();
-
-            if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
-                await this.fetchConfig();
-                // Recargar dashboard
-                if (document.getElementById('section-title').textContent === 'Dashboard') {
-                    app.dashboardManager.load();
+                    if (result.success) {
+                        this.fetchOrders();
+                    } else {
+                        alert('Error: ' + (result.error || 'No se pudo eliminar'));
+                    }
+                } catch (err) {
+                    console.error(err);
                 }
-                alert('Moneda actualizada y tasa de cambio obtenida correctamente');
-            } else {
-                alert('Error: ' + (result.error || 'No se pudo guardar'));
             }
-        } catch (err) {
-            console.error(err);
-            alert('Error de conexión');
-        }
+        );
     }
 }
 
 // ============================================
-// APP PRINCIPAL
+// APLICACIÓN PRINCIPAL
 // ============================================
-class App {
+class AdminApp {
     constructor() {
-        // Inicializo gestores
-        this.currencyManager = new CurrencyManager();
         this.dashboardManager = new DashboardManager();
         this.userManager = new UserManager();
         this.productManager = new ProductManager();
         this.orderManager = new OrderManager();
-        this.logManager = new LogManager();
-        this.configManager = new ConfigManager();
+        this.currencyManager = new CurrencyManager();
+        this.confirmManager = new ConfirmManager(); // Nuevo Gestor
+
+        this.init();
     }
 
-    async init() {
-        // Cargar configuración global primero
-        await this.configManager.fetchConfig();
+    init() {
+        document.addEventListener('DOMContentLoaded', () => {
+            this.productManager.loadCategories(); // Precargar categorías
 
-        // Cargar dashboard inicial
-        this.loadSection('dashboard');
+            // localStorage: Recupero la última sección visitada o voy al dashboard
+            const lastSection = localStorage.getItem('adminSection') || 'dashboard';
+            this.loadSection(lastSection);
+        });
     }
 
     loadSection(section) {
-        // Actualizo título
-        const titles = {
-            'dashboard': 'Dashboard',
-            'users': 'Gestión de Usuarios',
-            'orders': 'Gestión de Pedidos',
-            'products': 'Gestión de Productos',
-            'logs': 'Historial de Logs'
-        };
-        document.getElementById('section-title').textContent = titles[section] || 'Panel Admin';
+        const title = document.getElementById('section-title');
 
-        // Actualizo botones activos
+        // Actualizo el botón activo
         document.querySelectorAll('.list-group-item').forEach(btn => btn.classList.remove('active'));
-        const btn = document.getElementById(`btn-${section}`);
-        if (btn) btn.classList.add('active');
+        document.getElementById(`btn-${section}`)?.classList.add('active');
 
-        // Limpio configuración highlight
-        document.getElementById('btn-config')?.classList.remove('active');
+        // localStorage: Guardo la sección actual
+        localStorage.setItem('adminSection', section);
 
-        // Cargo contenido
+        // Muestro spinner
         Utils.showSpinner('admin-content');
 
-        setTimeout(() => {
-            switch (section) {
-                case 'dashboard':
-                    this.dashboardManager.load();
-                    break;
-                case 'users':
-                    this.userManager.fetchUsers();
-                    break;
-                case 'orders':
-                    this.orderManager.fetchOrders();
-                    break;
-                case 'products':
-                    this.productManager.fetchProducts();
-                    break;
-                case 'logs':
-                    this.logManager.fetchLogs();
-                    break;
-                default:
-                    document.getElementById('admin-content').innerHTML = '<p class="text-muted">Sección no encontrada</p>';
-            }
-        }, 300); // Pequeño delay para cargar ux
-    }
-
-    openConfigModal() {
-        this.configManager.openModal();
+        switch (section) {
+            case 'dashboard':
+                title.innerText = 'Dashboard';
+                this.dashboardManager.load();
+                break;
+            case 'users':
+                title.innerText = 'Gestión de Usuarios';
+                this.userManager.fetchUsers();
+                break;
+            case 'orders':
+                title.innerText = 'Gestión de Pedidos';
+                this.orderManager.fetchOrders();
+                break;
+            case 'products':
+                title.innerText = 'Gestión de Productos';
+                this.productManager.fetchProducts();
+                break;
+            default:
+                document.getElementById('admin-content').innerHTML = '<p class="text-muted">Sección no encontrada</p>';
+        }
     }
 
     updateCurrency(currency) {
         this.currencyManager.currentCurrency = currency;
+        // Recargo solo el dashboard sin llamar a la API de nuevo
         this.dashboardManager.load();
     }
 }
 
 // Instancia global para ser accesible desde el HTML (onclick)
-const app = new App();
+window.app = new AdminApp();
+console.log('Admin App Initialized', window.app);

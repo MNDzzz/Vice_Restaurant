@@ -8,7 +8,7 @@ class DiscountService
         $dia = date('N'); // 1-7
         $hora = date('H'); // 0-23
 
-        // Testing diferentes días y/o horas
+        // Testing diferentes días y horas
         //$dia = 7;
         //$hora = 22;
 

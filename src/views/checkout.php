@@ -15,7 +15,7 @@ $totals = DiscountService::calculateDetails($_SESSION['cart']);
 $subtotal = $totals['subtotal'];
 $discount = $totals['discount'];
 $nombrePromocion = $totals['promo_name'];
-$total = $totals['finalTotal']; // Se sobreescribe $total para compatibilidad con el resto del archivo
+$total = $totals['finalTotal']; // Sobrescribimos $total para compatibilidad con el resto del archivo
 ?>
 
 <div class="container py-5">

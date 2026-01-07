@@ -79,7 +79,34 @@ class UserDAO extends BaseDAO
 
     public function delete($id)
     {
-        return $this->deleteById($id);
+        try {
+            $this->db->beginTransaction();
+
+            // 1. Obtener IDs de pedidos del usuario
+            $stmt = $this->db->prepare("SELECT id FROM orders WHERE user_id = ?");
+            $stmt->execute([$id]);
+            $orderIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            if (!empty($orderIds)) {
+                // 2. Eliminar items de esos pedidos
+                $inQuery = implode(',', array_fill(0, count($orderIds), '?'));
+                $stmt = $this->db->prepare("DELETE FROM order_items WHERE order_id IN ($inQuery)");
+                $stmt->execute($orderIds);
+
+                // 3. Eliminar los pedidos
+                $stmt = $this->db->prepare("DELETE FROM orders WHERE user_id = ?");
+                $stmt->execute([$id]);
+            }
+
+            // 4. Eliminar el usuario
+            $result = $this->deleteById($id);
+
+            $this->db->commit();
+            return $result;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 
     public function toggleActive($id)

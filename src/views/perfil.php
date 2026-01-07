@@ -1,5 +1,5 @@
 <?php
-// Solo para usuarios logueados
+// Protejo la vista: solo usuarios logueados
 if (!isset($_SESSION['user_id'])) {
     header('Location: index.php?view=login');
     exit;
@@ -55,7 +55,7 @@ $success = $_GET['success'] ?? '';
                                 value="<?php echo htmlspecialchars($userEmail); ?>" required>
                         </div>
 
-                        <!-- Contraseña -->
+                        <!-- Contraseña (Opcional) -->
                         <div class="mb-4">
                             <label for="password" class="form-label text-primary-custom">
                                 Nueva Contraseña <small class="text-muted text-white-50">(Opcional)</small>

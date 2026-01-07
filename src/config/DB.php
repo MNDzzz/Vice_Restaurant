@@ -12,12 +12,11 @@ class DB
     private function __construct()
     {
         try {
-            // Usamos directamente las propiedades de la clase para evitar que el entorno del servidor
-            // sobrescriba la configuración con 'localhost' y cause el error de socket.
-            $host = $this->host;
-            $user = $this->user;
-            $pass = $this->pass;
-            $name = $this->name;
+            // Priorizamos variables de entorno (Docker) si existen, si no, usamos la config de clase (XAMPP/Prod)
+            $host = getenv('DB_HOST') ?: $this->host;
+            $user = getenv('DB_USER') ?: $this->user;
+            $pass = getenv('DB_PASS') ?: $this->pass;
+            $name = getenv('DB_NAME') ?: $this->name;
 
             $this->conn = new PDO("mysql:host={$host};dbname={$name}", $user, $pass);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

@@ -28,9 +28,10 @@ class CurrencyService
                 if (isset(self::$codeToSymbol[$code])) {
                     self::$symbol = self::$codeToSymbol[$code];
                 } else {
-                    self::$symbol = $code; // Si no, usa el código tal cual
+                    self::$symbol = $code; // Si no, uso el código tal cual
                 }
             } elseif (isset($config['currency_symbol'])) {
+                // Soporte para la versión anterior (por si acaso)
                 self::$symbol = $config['currency_symbol'];
             }
 
@@ -38,7 +39,7 @@ class CurrencyService
                 self::$rate = floatval($config['currency_rate']);
             }
 
-            // Si la tasa es 0 o negativa, vuelvo a 1 (bug)
+            // Seguridad: Si la tasa es 0 o negativa, vuelvo a 1
             if (self::$rate <= 0)
                 self::$rate = 1.0;
 

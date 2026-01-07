@@ -15,6 +15,7 @@ class ConfigDAO extends BaseDAO
 
     public function set($key, $value)
     {
+        // Upsert logic (Insert or Update)
         $stmt = $this->db->prepare("INSERT INTO config (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?");
         return $stmt->execute([$key, $value, $value]);
     }

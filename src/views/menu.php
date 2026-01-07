@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../config/DB.php';
-require_once __DIR__ . '/../services/CurrencyService.php';
 $db = DB::getInstance()->getConnection();
 
 // Obtengo las categorías y sus productos
@@ -48,10 +47,17 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
         <div class="editorial-container">
             <?php foreach ($products as $prod): ?>
                 <?php
-                $prodImg = str_replace('views/images/', 'assets/img/', $prod['image']);
-                // Aseguro una imagen válida
-                if (strpos($prodImg, 'assets/img/') === false && strpos($prodImg, 'http') === false) {
-                    $prodImg = 'assets/img/' . $prodImg;
+                // Estandarización de rutas de imagen (Igual que en pedir.php)
+                $filename = basename($prod['image']);
+                $prodImg = 'assets/img/menu/products/' . $filename;
+
+                // Si no existe la imagen, busco alternativa
+                if (!file_exists(__DIR__ . '/../' . $prodImg)) {
+                    // Pruebo en la carpeta raíz
+                    $fallback = 'assets/img/' . $filename;
+                    if (file_exists(__DIR__ . '/../' . $fallback)) {
+                        $prodImg = $fallback;
+                    }
                 }
                 ?>
                 <div class="editorial-row reveal-row">
@@ -64,7 +70,7 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
                     <div class="editorial-content-col">
                         <div class="editorial-title"><?php echo htmlspecialchars($prod['name']); ?></div>
                         <div class="editorial-desc"><?php echo htmlspecialchars($prod['description']); ?></div>
-                        <span class="editorial-price"><?php echo CurrencyService::format($prod['price']); ?></span>
+                        <span class="editorial-price"><?php echo number_format($prod['price'], 2); ?>€</span>
 
                         <!-- Botón "Pedir" que actúa como añadir al carrito o redirección -->
                         <button class="btn btn-editorial" onclick='Cart.add({
