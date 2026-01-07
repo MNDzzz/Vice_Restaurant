@@ -1,5 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Fascinate+Inline&family=Inter:wght@400;600&family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap');
 
+@font-face {
+    font-family: 'ViceTitle';
+    src: url('../fonts/GTA Art Deco - Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ViceBody';
+    src: url('../fonts/GTA Art Deco - Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
 :root {
     /* PALETA DE COLORES */
     --color-bg: #1C1829;
@@ -13,9 +27,9 @@
     --color-dark: #000000;
 
     /* Tipografía */
-    --font-title: 'Fascinate Inline', cursive;
-    --font-subtitle: 'Playfair Display', serif;
-    --font-body: 'Inter', sans-serif;
+    --font-title: 'ViceTitle', sans-serif;
+    --font-subtitle: 'ViceTitle', sans-serif;
+    --font-body: 'ViceBody', sans-serif;
 
     /* Tamaños de fuente */
     --size-title: 48px;
@@ -34,12 +48,14 @@ body {
 }
 
 /* Sobrescritura de la tipografía */
+/* Sobrescritura de la tipografía */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
+    font-family: var(--font-title);
     color: var(--color-primary);
     text-transform: uppercase;
 }
