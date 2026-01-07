@@ -11,12 +11,9 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- HERO PEQUEÑO -->
     <div class="menu-hero-small"
-        style="height: 40vh; display: flex; align-items: center; justify-content: center; background: url('assets/img/menu/vice_city_bg.jpg') center/cover; position: relative;">
-        <div style="position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6);"></div>
-        <div class="menu-title-main"
-            style="position: relative; z-index: 2; font-family: var(--font-title); font-size: 80px; color: var(--color-primary); text-transform: uppercase;">
-            NUESTRO MENÚ
-        </div>
+        style="min-height: 40vh; height: auto; display: flex; align-items: flex-start; justify-content: center; position: relative; padding-top: 0px; padding-bottom: 80px;">
+        <img src="assets/img/menu/vice-menu-logo.svg" alt="Vice Menu"
+            style="position: relative; z-index: 2; max-width: 90%; width: 750px; margin-top: 0; margin-bottom: 0; filter: drop-shadow(0 0 20px rgba(255, 0, 222, 0.6));">
     </div>
 
     <!-- BUCLE DE CATEGORÍAS -->
