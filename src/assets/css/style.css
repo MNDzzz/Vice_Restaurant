@@ -1,15 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Fascinate+Inline&family=Inter:wght@400;600&family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap');
 
 @font-face {
-    font-family: 'ViceTitle';
-    src: url('../fonts/GTA Art Deco - Medium.ttf') format('truetype');
-    font-weight: 500;
+    font-family: 'ViceGT';
+    src: url('../fonts/gta-regular.woff') format('woff');
+    font-weight: 400;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'ViceBody';
-    src: url('../fonts/GTA Art Deco - Regular.ttf') format('truetype');
+    font-family: 'ViceGT';
+    src: url('../fonts/gta-semibold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ViceGT';
+    src: url('../fonts/gta-bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ViceGTNarrow';
+    src: url('../fonts/gta-narrow.woff') format('woff');
     font-weight: 400;
     font-style: normal;
 }
@@ -26,10 +40,13 @@
     /* Crema Pálido */
     --color-dark: #000000;
 
-    /* Tipografía */
-    --font-title: 'ViceTitle', sans-serif;
-    --font-subtitle: 'ViceTitle', sans-serif;
-    --font-body: 'ViceBody', sans-serif;
+    /* Tipografía GLOBAL */
+    --font-title: 'ViceGTNarrow', sans-serif;
+    /* Para Títulos Grandes */
+    --font-subtitle: 'ViceGT', sans-serif;
+    /* Para Subtítulos (weight 600/700) */
+    --font-body: 'ViceGT', sans-serif;
+    /* Para Texto General (weight 400) */
 
     /* Tamaños de fuente */
     --size-title: 48px;
