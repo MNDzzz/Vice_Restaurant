@@ -277,12 +277,12 @@
 
     <!-- SECCIÓN 1: EDIFICIO CON LOGOTIPO PEQUEÑO -->
     <div class="hero-building-section">
-        <img src="assets/img/common/vice-logo.png" alt="Vice Logo" class="building-logo-small">
+        <img src="assets/img/common/vice-logo.svg" alt="Vice Logo" class="building-logo-small">
     </div>
 
     <!-- SECCIÓN 2: FONDO OSCURO LOGO FRASE -->
     <div class="hero-logo-reveal-section">
-        <img src="assets/img/common/vice-logo.png" alt="Vice Logo" class="logo-large">
+        <img src="assets/img/common/vice-logo.svg" alt="Vice Logo" class="logo-large">
         <div class="hero-text-block">
             <h2 class="hero-title-main">Un Paraíso Neón.</h2>
             <h1 class="hero-subtitle-main">Exclusivo y<br>Frente al Mar.</h1>
@@ -305,6 +305,134 @@
             </div>
         </div>
     </div>
+
+    <!-- 3.5 SECCIÓN OFERTAS -->
+    <div class="offers-section reveal-scroll">
+        <div class="container py-5">
+            <h3 class="section-header-text text-center w-100 mb-5">OFERTAS SEMANALES</h3>
+            <div class="row g-4 justify-content-center">
+                <!-- Oferta Lunes-Miércoles -->
+                <div class="col-md-6">
+                    <a href="index.php?view=menu" class="text-decoration-none">
+                        <div class="offer-card chill-mode">
+                            <div class="offer-content">
+                                <span class="offer-badge mb-2">LUN - MIÉ (TODO EL DÍA)</span>
+                                <h2 class="offer-title">CHILL WEEK</h2>
+                                <p class="offer-desc">50% DTO. EN TODOS LOS COCKTAILS</p>
+                                <button class="btn btn-outline-light mt-3">VER CARTA</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <!-- Oferta Jueves-Domingo -->
+                <div class="col-md-6">
+                    <a href="index.php?view=pedir" class="text-decoration-none">
+                        <div class="offer-card party-mode">
+                            <div class="offer-content">
+                                <span class="offer-badge mb-2">JUE - DOM (20:00 - 23:00)</span>
+                                <h2 class="offer-title">HAPPY WEEKEND</h2>
+                                <p class="offer-desc">25% DTO. EN TU CENA + COCKTAIL</p>
+                                <button class="btn btn-outline-light mt-3">HACER PEDIDO</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .offers-section {
+            background-color: var(--color-bg);
+            padding-bottom: 80px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .offer-card {
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .chill-mode {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 139, 0.4)), url('assets/img/home/offer-chill.jpg');
+            background-size: cover;
+            border-color: #0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .chill-mode:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .party-mode {
+            background: linear-gradient(45deg, rgba(255, 0, 255, 0.1), rgba(139, 0, 139, 0.4)), url('assets/img/home/offer-party.jpg');
+            background-size: cover;
+            border-color: #f0f;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+        }
+
+        .party-mode:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);
+        }
+
+        .offer-content {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            width: 80%;
+        }
+
+        .offer-badge {
+            display: inline-block;
+            background: #fff;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .offer-title {
+            font-family: var(--font-display, sans-serif);
+            font-size: 2.5rem;
+            color: #fff;
+            text-transform: uppercase;
+            margin: 10px 0;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .chill-mode .offer-title {
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff;
+        }
+
+        .party-mode .offer-title {
+            color: #f0f;
+            text-shadow: 0 0 10px #f0f;
+        }
+
+        .offer-desc {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+    </style>
 
     <!-- 4. SOCIAL BANNER -->
     <div class="vibe-banner-section reveal-scroll">

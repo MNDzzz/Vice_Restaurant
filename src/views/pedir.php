@@ -47,11 +47,37 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
         <!-- Cuadrícula de productos / Carrusel -->
         <div class="col-md-8 position-relative" style="z-index: 20;">
             <div class="products-grid-container">
+                <!-- Banner de Oferta Activa (Dinámico) -->
+                <?php
+                require_once __DIR__ . '/../services/DiscountService.php';
+                require_once __DIR__ . '/../services/CurrencyService.php';
+
+                $promoStatus = DiscountService::getPromoStatus();
+
+                // Lógica de visualización de banner
+                $showChill = ($promoStatus === 'CHILL');
+                $showParty = ($promoStatus === 'PARTY');
+                $isWeekendDay = ($promoStatus === 'PARTY' || $promoStatus === 'WEEKEND_WAIT');
+                ?>
+
+                <?php if ($showChill): ?>
+                    <div class="alert alert-info text-center mb-4"
+                        style="background: rgba(0, 255, 255, 0.1); border: 1px solid #0ff; color: #fff;">
+                        <h4 class="m-0">🍹 <strong>CHILL WEEK ACTIVE:</strong> 50% Dto. en todos los Cocktails</h4>
+                    </div>
+                <?php elseif ($isWeekendDay): ?>
+                    <div class="alert alert-primary text-center mb-4"
+                        style="background: rgba(255, 0, 255, 0.1); border: 1px solid #f0f; color: #fff;">
+                        <h4 class="m-0">🎉 <strong>HAPPY WEEKEND:</strong> 25% Dto. en Cena + Cocktail (20:00 - 23:00)</h4>
+                    </div>
+                <?php endif; ?>
+
                 <div class="row g-4" id="products-grid">
                     <?php foreach ($all_products as $prod): ?>
                         <div class="col-md-6 col-lg-4 product-item" data-category="<?php echo $prod['category_id']; ?>">
                             <div class="card h-100">
                                 <?php
+                                // Estandarización de rutas de imagen (Igual que en menu.php)
                                 $imgName = basename($prod['image']);
                                 $img_path = 'assets/img/menu/products/' . $imgName;
 
@@ -66,7 +92,7 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
                                     <h5 class="card-title mb-1"><?php echo htmlspecialchars($prod['name']); ?></h5>
                                     <div class="d-flex justify-content-between align-items-center mt-2">
                                         <span
-                                            class="fs-5 text-primary-custom fw-bold"><?php echo number_format($prod['price'], 2, ',', '.'); ?>$</span>
+                                            class="fs-5 text-primary-custom fw-bold"><?php echo CurrencyService::format($prod['price']); ?></span>
                                         <button class="btn btn-dark btn-sm px-3" onclick='Cart.add({
                                                     id: <?php echo $prod["id"]; ?>, 
                                                     name: "<?php echo htmlspecialchars($prod["name"], ENT_QUOTES); ?>", 

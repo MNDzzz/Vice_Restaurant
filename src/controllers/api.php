@@ -1,10 +1,15 @@
 <?php
 session_start();
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 require_once __DIR__ . '/../config/DB.php';
 require_once __DIR__ . '/../dao/UserDAO.php';
 require_once __DIR__ . '/../dao/ProductDAO.php';
 require_once __DIR__ . '/../dao/CategoryDAO.php';
 require_once __DIR__ . '/../dao/OrderDAO.php';
+require_once __DIR__ . '/../dao/ConfigDAO.php';
+require_once __DIR__ . '/../dao/LogDAO.php'; // Vital: Añadir LogDAO
 
 header('Content-Type: application/json');
 
@@ -13,9 +18,27 @@ $currentUserRole = $_SESSION['user_role'] ?? 'guest';
 $currentUserId = $_SESSION['user_id'] ?? 0;
 $action = $_GET['action'] ?? '';
 
-
 // Funciones para verificar que el usuario puede gestionar a otro usuario
 // ============================================
+
+// Función auxiliar para registrar acciones (Debug activo)
+function logAction($userId, $action, $details = null)
+{
+    // Si el ID es 0 o vacio, lo paso a NULL para evitar error de Foreign Key
+    if (empty($userId) || $userId == 0) {
+        $userId = null;
+    }
+
+    try {
+        $logDAO = new LogDAO();
+        $logDAO->logAction($userId, $action, $details);
+    } catch (Exception $e) {
+        // En producción silenciamos. En el test_log_insert re-lanzaremos esto.
+        if (isset($_GET['action']) && $_GET['action'] === 'test_log_insert') {
+            throw $e;
+        }
+    }
+}
 function canManageUser($currentRole, $targetRole)
 {
     if ($currentRole === 'superadmin') {
@@ -76,6 +99,9 @@ if ($action === 'create_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $productDAO = new ProductDAO();
             $createdProduct = $productDAO->create($product);
 
+            // LOG
+            logAction($currentUserId, 'create_product', "Producto creado: " . $data['name']);
+
             echo json_encode(['success' => true, 'id' => $createdProduct->getId()]);
         } catch (PDOException $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -103,6 +129,9 @@ if ($action === 'update_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $productDAO = new ProductDAO();
             $success = $productDAO->update($product);
 
+            // LOG
+            logAction($currentUserId, 'update_product', "Producto actualizado ID: " . $data['id']);
+
             echo json_encode(['success' => $success]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -120,6 +149,9 @@ if ($action === 'delete_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $productDAO = new ProductDAO();
             $success = $productDAO->delete($data['id']);
+
+            // LOG
+            logAction($currentUserId, 'delete_product', "Producto eliminado ID: " . $data['id']);
 
             echo json_encode(['success' => $success]);
         } catch (Exception $e) {
@@ -473,6 +505,89 @@ if ($action === 'get_stats') {
         $stats['total_revenue'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
         echo json_encode($stats);
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ============================================
+// ENDPOINTS DE CONFIGURACIÓN
+// ============================================
+
+if ($action === 'get_config') {
+    try {
+        $configDAO = new ConfigDAO();
+        echo json_encode($configDAO->getAll());
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+if ($action === 'update_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    // Solo admins pueden cambiar configuración
+    if ($currentUserRole !== 'superadmin' && $currentUserRole !== 'admin') {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+
+    try {
+        $configDAO = new ConfigDAO();
+
+        // Si me envían un código de moneda (ej: USD)
+        if (isset($data['currency_code'])) {
+            $code = $data['currency_code'];
+            $rate = 1.0;
+
+            // Si no es Euro, consulto la API
+            if ($code !== 'EUR') {
+                try {
+                    // Obtengo la tasa de cambio actual desde Frankfurter
+                    $apiUrl = "https://api.frankfurter.app/latest?from=EUR&to=" . $code;
+                    // Uso file_get_contents para simplicidad
+                    // Si falla, saltará al catch y dejará la tasa en 1.0
+                    $json = file_get_contents($apiUrl);
+                    $apiData = json_decode($json, true);
+
+                    if (isset($apiData['rates'][$code])) {
+                        $rate = floatval($apiData['rates'][$code]);
+                    }
+                } catch (Exception $e) {
+                    // Si falla la API, registro el error pero sigo (con tasa 1) o lanzo error
+                    error_log("Fallo al obtener tasa de cambio: " . $e->getMessage());
+                }
+            }
+
+            // Guardo el código y la tasa actualizada
+            $configDAO->set('currency_code', $code);
+            $configDAO->set('currency_rate', strval($rate));
+        }
+
+        logAction($currentUserId, 'update_config', "Configuración de moneda actualizada");
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ============================================
+// ENDPOINTS DE LOGS
+// ============================================
+
+if ($action === 'get_logs') {
+    if ($currentUserRole !== 'superadmin' && $currentUserRole !== 'admin') {
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
+    }
+
+    try {
+        $logDAO = new LogDAO();
+        $logs = $logDAO->getAll();
+        echo json_encode($logs);
     } catch (Exception $e) {
         echo json_encode(['error' => $e->getMessage()]);
     }

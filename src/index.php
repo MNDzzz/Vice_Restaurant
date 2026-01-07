@@ -1,11 +1,12 @@
 <?php
 session_start();
 
-// Defino el enrutamiento simple para la aplicación
+// Routing simple para la aplicación
 $view = isset($_GET['view']) ? $_GET['view'] : 'home';
 
+// Whitelist de vistas permitidas
 // Defino una lista blanca de vistas permitidas por seguridad
-$allowed_views = ['home', 'menu', 'pedir', 'admin', 'login', 'register', 'carrito', 'checkout', 'mis-pedidos'];
+$allowed_views = ['home', 'menu', 'pedir', 'admin', 'login', 'register', 'carrito', 'checkout', 'mis-pedidos', 'perfil'];
 
 if (!in_array($view, $allowed_views)) {
     $view = 'home';
@@ -44,11 +45,20 @@ if ($view === 'admin') {
         <div class="container-fluid d-flex justify-content-between align-items-center px-4 py-3">
             <!-- Coloco el logo tipo script a la izquierda -->
             <a class="navbar-brand-script" href="index.php?view=home">
-                <img src="assets/img/common/vice-logo.png" alt="Vice" style="height: 40px;">
+                <img src="assets/img/common/vice-logo.svg" alt="Vice" style="height: 40px;">
             </a>
 
             <!-- Añado los iconos a la derecha -->
             <div class="d-flex align-items-center gap-4">
+                <!-- Icono de Perfil -->
+                <a href="index.php?view=<?php echo isset($_SESSION['user_id']) ? 'perfil' : 'login'; ?>"
+                    class="nav-icon-link">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </a>
+
                 <!-- Muestro el icono del carrito de compras -->
                 <a href="index.php?view=carrito" class="nav-icon-link position-relative">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">

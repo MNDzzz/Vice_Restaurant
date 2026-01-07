@@ -57,10 +57,11 @@ if ($action === 'add') {
     }
 
     $user_id = $_SESSION['user_id'];
-    $total = 0;
-    foreach ($_SESSION['cart'] as $item) {
-        $total += $item['price'] * $item['quantity'];
-    }
+    require_once __DIR__ . '/../services/DiscountService.php';
+
+    // Calculamos totales usando el servicio centralizado
+    $totals = DiscountService::calculateDetails($_SESSION['cart']);
+    $finalTotal = $totals['finalTotal'];
 
     // Obtengo la información de entrega
     $delivery_name = $_POST['delivery_name'] ?? '';
@@ -77,7 +78,7 @@ if ($action === 'add') {
         // Creo el pedido con la información de entrega
         $order = new Order([
             'user_id' => $user_id,
-            'total' => $total,
+            'total' => $finalTotal, // Uso el total final con descuentos aplicados
             'status' => 'pending',
             'delivery_name' => $delivery_name,
             'delivery_phone' => $delivery_phone,

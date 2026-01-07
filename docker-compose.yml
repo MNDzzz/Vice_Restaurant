@@ -22,7 +22,7 @@ services:
       - MYSQL_DATABASE=vice_db
     volumes:
       - db_data:/var/lib/mysql
-      - ./vice_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/vice_db.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   db_data:

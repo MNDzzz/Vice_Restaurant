@@ -32,6 +32,10 @@ $isSuperAdmin = $userRole === 'superadmin';
                             onclick="app.loadSection('products')" id="btn-products">
                             🍔 Productos
                         </button>
+                        <button class="list-group-item list-group-item-action bg-dark text-light"
+                            onclick="app.openConfigModal()" id="btn-config">
+                            ⚙️ Configuración
+                        </button>
                     </div>
                 </div>
             </div>
@@ -192,10 +196,42 @@ $isSuperAdmin = $userRole === 'superadmin';
     </div>
 </div>
 
+<!-- Modal de configuración -->
+<div class="modal fade" id="configModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Configuración de la Tienda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="configForm">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <strong>Nota:</strong> Selecciona la moneda y el sistema actualizará automáticamente la tasa de
+                        cambio actual.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Moneda de la Tienda</label>
+                        <select class="form-select bg-secondary text-white border-0" id="confCurrencyCode">
+                            <option value="EUR">Euro (EUR)</option>
+                            <option value="USD">Dólar (USD)</option>
+                            <option value="GBP">Libra (GBP)</option>
+                            <option value="JPY">Yen (JPY)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar y Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Paso el rol de usuario a JavaScript -->
 <script>
-        const USER_ROLE = '<?php echo $userRole; ?>';
-        const IS_SUPERADMIN = <?php echo $isSuperAdmin ? 'true' : 'false'; ?>;
+    const USER_ROLE = '<?php echo $userRole; ?>';
+    const IS_SUPERADMIN = <?php echo $isSuperAdmin ? 'true' : 'false'; ?>;
 </script>
 <script src="assets/js/admin.js"></script>
