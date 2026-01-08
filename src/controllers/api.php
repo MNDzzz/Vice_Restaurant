@@ -13,16 +13,7 @@ $currentUserRole = $_SESSION['user_role'] ?? 'guest';
 $currentUserId = $_SESSION['user_id'] ?? 0;
 $action = $_GET['action'] ?? '';
 
-// Función para guardar logs de errores
-function logDebug($msg)
-{
-    $logFile = __DIR__ . '/debug_api.txt';
-    $timestamp = date('Y-m-d H:i:s');
-    file_put_contents($logFile, "[$timestamp] $msg\n", FILE_APPEND);
-}
 
-// Función para guardar errores
-logDebug("Petición: Action=$action | Method=" . $_SERVER['REQUEST_METHOD'] . " | Role=$currentUserRole | Payload=" . file_get_contents('php://input'));
 // Funciones auxiliares
 // ============================================
 function canManageUser($currentRole, $targetRole)

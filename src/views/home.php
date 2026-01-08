@@ -5,6 +5,14 @@
             color: var(--color-text);
             overflow-x: hidden;
             width: 100%;
+            width: 100%;
+            max-width: 100% !important;
+            /* No uso 100vw para evitar problemas en Windows */
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+            /* Fuerzo la visibilidad vertical para evitar doble scroll */
+            height: auto !important;
+            /* Dejo que la altura sea automática */
         }
 
         /* FALTA ANIMACION COMO EN LA WEB OG!!!! */
@@ -22,7 +30,13 @@
             display: flex;
             align-items: flex-start;
             justify-content: center;
+            justify-content: center;
             padding-top: 8vh;
+            padding-top: 8vh;
+            padding-top: 8vh;
+            overflow: hidden !important;
+            /* Oculto el desbordamiento para que las imágenes no rompan el layout */
+            width: 100% !important;
         }
 
         .building-logo-small {
@@ -47,7 +61,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            justify-content: center;
             padding: 60px 20px;
+            overflow: hidden;
+            /* Aseguro que el contenido no salga del contenedor */
         }
 
         .logo-large {
@@ -58,19 +75,31 @@
             filter: drop-shadow(0 0 40px rgba(255, 0, 222, 0.5));
             opacity: 0;
             transform: scale(0.7) translateY(-50px);
+            transform: scale(0.7) translateY(-50px);
+            transform: scale(0.7) translateY(-50px);
+            max-width: 500px;
+            /* Restauro el tamaño máximo correcto del logo */
         }
 
         .hero-text-block {
             text-align: center;
             opacity: 0;
             transform: translateY(30px);
+            /* Aplico el degradado a todo el bloque de texto */
+            background: linear-gradient(180deg, #00FFFF 0%, #FF00FF 33%, #FFAA00 66%, #D400FF 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .hero-title-main {
             font-family: var(--font-body);
             font-weight: 600;
             font-size: 2.5rem;
-            color: #8B8BA0;
+            font-weight: 600;
+            font-size: 2.5rem;
+            color: inherit;
+            /* Heredo el degradado del padre */
             margin: 0 0 10px 0;
             line-height: 1.3;
         }
@@ -79,7 +108,15 @@
             font-family: var(--font-body);
             font-weight: 700;
             font-size: 3rem;
-            color: #B88BB8;
+            font-weight: 700;
+            font-size: 3rem;
+            color: #FFF;
+            /* Fallback */
+            background: linear-gradient(90deg, #00FFFF, #FF00FF, #FFAA00, #D400FF);
+            /* Turquesa, Rosa, Naranja, Lila */
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             line-height: 1.2;
             margin-bottom: 40px;
         }
@@ -89,6 +126,8 @@
             gap: 20px;
             margin-top: 20px;
             justify-content: center;
+            align-items: center;
+            /* Alineación vertical perfecta */
             flex-wrap: wrap;
         }
 
@@ -102,7 +141,13 @@
             text-transform: uppercase;
             text-decoration: none;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            position: relative;
+            z-index: 10;
+            backface-visibility: hidden;
+            /* Evito parpadeos en la animación */
+            display: inline-block;
         }
 
         .btn-pill-white:hover {
@@ -121,6 +166,8 @@
             background-attachment: fixed;
             position: relative;
             z-index: 2;
+            overflow: hidden;
+            /* Evito scroll horizontal */
         }
 
         /* CONTENEDOR DIVISOR EN ÁNGULO */
@@ -134,6 +181,8 @@
             margin-top: -60px;
             padding-top: 100px;
             padding-bottom: 0px;
+            overflow: hidden;
+            /* Mantengo el contenido dentro de los bordes inclinados */
         }
 
         /* 3. UBICACIÓN  */
@@ -168,6 +217,7 @@
             position: relative;
             margin-top: -5px;
             overflow: hidden;
+            /* Ya está, pero confirmo */
         }
 
         .vibe-img {
@@ -175,6 +225,8 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            max-width: 100% !important;
+            /* Fuerzo el límite de ancho para evitar que la imagen empuje el contenedor */
         }
 
         /* 5. SECCIÓN DE POSTS SOCIAL */
@@ -186,6 +238,8 @@
             padding-bottom: 50px;
             clip-path: polygon(0 50px, 100% 0, 100% 100%, 0 100%);
             z-index: 4;
+            overflow: hidden;
+            /* Oculto elementos que sobresalgan por la rotación */
         }
 
         .posts-container {
@@ -234,6 +288,7 @@
             position: relative;
             z-index: 1;
             overflow: hidden;
+            /* Ya está, pero confirmo */
         }
 
         .char-car-img {
@@ -241,6 +296,8 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            max-width: 100% !important;
+            /* Restrinjo el ancho de la imagen explicítamente */
         }
 
         /* 7. SECCIÓN EVENTOS */
@@ -252,7 +309,10 @@
             z-index: 5;
             clip-path: polygon(0 50px, 100% 0, 100% 100%, 0 100%);
             padding-bottom: 80px;
+            padding-bottom: 80px;
             text-align: center;
+            overflow: hidden;
+            /* Prevengo desbordamientos en la sección de eventos */
         }
 
         .events-grid {
@@ -297,7 +357,7 @@
     <div class="city-banner-section reveal-scroll"></div>
 
     <!-- 3. UBICACION -->
-    <div class="angled-section">
+    <div class="angled-section" id="ubicacion">
         <div class="location-section reveal-scroll">
             <h3 class="section-header-text">UBICACIÓN</h3>
             <div class="location-map-wrapper">
@@ -319,7 +379,7 @@
                                 <span class="offer-badge mb-2">LUN - MIÉ (TODO EL DÍA)</span>
                                 <h2 class="offer-title">CHILL WEEK</h2>
                                 <p class="offer-desc">50% DTO. EN TODOS LOS COCKTAILS</p>
-                                <button class="btn btn-outline-light mt-3">VER CARTA</button>
+                                <span class="btn btn-outline-light mt-3">VER CARTA</span>
                             </div>
                         </div>
                     </a>
@@ -332,7 +392,7 @@
                                 <span class="offer-badge mb-2">JUE - DOM (20:00 - 23:00)</span>
                                 <h2 class="offer-title">HAPPY WEEKEND</h2>
                                 <p class="offer-desc">25% DTO. EN TU CENA + COCKTAIL</p>
-                                <button class="btn btn-outline-light mt-3">HACER PEDIDO</button>
+                                <span class="btn btn-outline-light mt-3">HACER PEDIDO</span>
                             </div>
                         </div>
                     </a>
@@ -345,8 +405,11 @@
         .offers-section {
             background-color: var(--color-bg);
             padding-bottom: 80px;
+            padding-bottom: 80px;
             position: relative;
             z-index: 3;
+            overflow: hidden;
+            /* Añado overflow hidden que faltaba anteriormente */
         }
 
         .offer-card {
@@ -440,7 +503,7 @@
     </div>
 
     <!-- 5. POSTS SOCIAL -->
-    <div class="posts-section-angled reveal-scroll">
+    <div class="posts-section-angled reveal-scroll" id="posts">
         <div class="posts-container">
             <div class="posts-left">
                 <img src="assets/img/home/its-a-vice-square.png" alt="#ItsAVice" class="its-a-vice-neon">
@@ -463,7 +526,7 @@
     </div>
 
     <!-- 7. EVENTOS -->
-    <div class="eventos-section-angled reveal-scroll">
+    <div class="eventos-section-angled reveal-scroll" id="eventos">
         <h3 class="section-header-text">EVENTOS</h3>
         <div class="events-grid">
             <img src="assets/img/home/event-flyer-1.png" class="event-flyer">

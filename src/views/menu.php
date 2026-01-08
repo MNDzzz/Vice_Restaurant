@@ -33,7 +33,8 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
         ?>
 
         <!-- BANNER DE SECCIÓN -->
-        <div class="menu-section-banner" style="background-image: url('<?php echo htmlspecialchars($bannerImg); ?>');">
+        <div class="menu-section-banner" id="<?php echo strtolower($cat['name']); ?>"
+            style="background-image: url('<?php echo htmlspecialchars($bannerImg); ?>');">
             <div class="menu-section-overlay"></div>
             <div class="menu-section-title reveal-text">
                 <?php echo htmlspecialchars($cat['name']); ?>

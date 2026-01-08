@@ -60,33 +60,15 @@ if ($view === 'admin') {
 
     <!-- Implemento el menú lateral (Offcanvas) -->
     <div class="offcanvas offcanvas-end vice-sidebar" tabindex="-1" id="viceMenuSidebar">
-        <div class="offcanvas-header">
-            <!-- Iconos de usuario y carrito (Izquierda) -->
-            <div class="header-icons d-flex gap-4 align-items-center">
-                <a href="index.php?view=<?php echo isset($_SESSION['user_id']) ? 'perfil' : 'login'; ?>"
-                    class="nav-icon-link">
-                    <?php readfile('assets/icons/heroicons/outline/user.svg'); ?>
-                </a>
-                <a href="index.php?view=carrito" class="nav-icon-link position-relative">
-                    <?php readfile('assets/icons/heroicons/outline/shopping-bag.svg'); ?>
-                    <?php if (isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
-                        <span class="badge bg-primary rounded-circle position-absolute top-0 start-100 translate-middle p-1"
-                            style="font-size:0.6rem;">
-                            <?php echo count($_SESSION['cart']); ?>
-                        </span>
-                    <?php endif; ?>
-                </a>
-            </div>
 
-            <!-- Botón de cierre (Derecha) -->
-            <button type="button" class="btn-close-custom" data-bs-dismiss="offcanvas" aria-label="Close">
-                <?php readfile('assets/icons/heroicons/outline/x-mark.svg'); ?>
-            </button>
+        <!-- LOGO GRANDE EN EL FONDO (Izquierda) -->
+        <div class="sidebar-backdrop-logo">
+            <img src="assets/img/common/vice-logo.svg" alt="Vice Logo">
         </div>
+        <div class="offcanvas-header">
 
-        <div class="offcanvas-body d-flex flex-column">
-            <!-- Muestro las pestañas de navegación superiores -->
-            <div class="sidebar-tabs">
+            <!-- 1. Pestañas de navegación (Izquierda) -->
+            <div class="sidebar-tabs-header">
                 <button class="sidebar-tab active" data-tab="inicio">Inicio</button>
                 <button class="sidebar-tab" data-tab="menu">Menu</button>
                 <?php if (isset($_SESSION['user_id'])): ?>
@@ -98,8 +80,36 @@ if ($view === 'admin') {
                 <?php endif; ?>
             </div>
 
+            <!-- 2. Grupo Derecha: Iconos + Cerrar -->
+            <div class="d-flex align-items-center gap-4">
+                <!-- Iconos de usuario y carrito -->
+                <div class="header-icons d-flex gap-4 align-items-center">
+                    <a href="index.php?view=<?php echo isset($_SESSION['user_id']) ? 'perfil' : 'login'; ?>"
+                        class="nav-icon-link">
+                        <?php readfile('assets/icons/heroicons/outline/user.svg'); ?>
+                    </a>
+                    <a href="index.php?view=carrito" class="nav-icon-link position-relative">
+                        <?php readfile('assets/icons/heroicons/outline/shopping-bag.svg'); ?>
+                        <?php if (isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
+                            <span
+                                class="badge bg-primary rounded-circle position-absolute top-0 start-100 translate-middle p-1"
+                                style="font-size:0.6rem;">
+                                <?php echo count($_SESSION['cart']); ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
+                </div>
+
+                <!-- Botón de cierre -->
+                <button type="button" class="btn-close-custom" data-bs-dismiss="offcanvas" aria-label="Close">
+                    <?php readfile('assets/icons/heroicons/outline/x-mark.svg'); ?>
+                </button>
+            </div>
+        </div>
+
+        <div class="offcanvas-body d-flex flex-column">
             <!-- Defino el área de contenido principal del sidebar -->
-            <div class="sidebar-content flex-grow-1">
+            <div class="sidebar-content flex-grow-1 mt-5">
                 <!-- Muestro el contenido de la pestaña Inicio -->
                 <div class="tab-content active" data-content="inicio">
                     <a href="index.php?view=home#ubicacion" class="sidebar-link">Ubicación</a>
@@ -133,37 +143,50 @@ if ($view === 'admin') {
                 <?php endif; ?>
             </div>
 
-            <!-- Añado la sección inferior con botones de autenticación y logo -->
             <div class="sidebar-footer">
-                <?php if (!isset($_SESSION['user_id'])): ?>
-                    <div class="sidebar-auth-buttons">
-                        <a href="index.php?view=login" class="btn-sidebar-auth">Login</a>
-                        <a href="index.php?view=register" class="btn-sidebar-auth">Registrarse</a>
+                <!-- Fila 1: Botones (Izquierda) - Imagen (Derecha) -->
+                <div class="d-flex w-100 justify-content-between align-items-center mb-5">
+                    
+                    <!-- Columna 1: Botones Auth -->
+                    <div class="footer-col-auth">
+                         <?php if (!isset($_SESSION['user_id'])): ?>
+                            <div class="sidebar-auth-buttons mb-0">
+                                <a href="index.php?view=login" class="btn-sidebar-auth">Login</a>
+                                <a href="index.php?view=register" class="btn-sidebar-auth">Registrarse</a>
+                            </div>
+                        <?php elseif ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'superadmin'): ?>
+                            <div class="sidebar-auth-buttons mb-0">
+                                <a href="index.php?view=admin" class="btn-sidebar-auth btn-admin">Panel Admin</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php elseif ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'superadmin'): ?>
-                    <div class="sidebar-auth-buttons">
-                        <a href="index.php?view=admin" class="btn-sidebar-auth btn-admin">Panel Admin</a>
-                    </div>
-                <?php endif; ?>
 
-                <!-- Muestro el logo en el sidebar -->
-                <div class="sidebar-logo">
-                    <img src="assets/img/common/its-a-vice.png" alt="#ItsAVice" class="sidebar-neon-img">
+                    <!-- Columna 2: Logo Vice (Derecha) -->
+                    <div class="footer-col-logo text-end">
+                         <img src="assets/img/common/its-a-vice.png" alt="#ItsAVice" class="sidebar-neon-img">
+                    </div>
                 </div>
 
-                <!-- Añado iconos de pie de página y derechos de autor -->
-                <div class="sidebar-footer-icons">
-                    <a href="#" class="footer-icon-small">
-                        <?php readfile('assets/icons/heroicons/outline/phone.svg'); ?>
-                    </a>
-                    <a href="#" class="footer-icon-small">
-                        <?php readfile('assets/icons/heroicons/outline/map-pin.svg'); ?>
-                    </a>
-                    <a href="#" class="footer-icon-small">
-                        <?php readfile('assets/icons/heroicons/outline/globe-alt.svg'); ?>
-                    </a>
+                <!-- Fila 2: Iconos (Izquierda) - Copyright (Centro Absoluto) -->
+                <div class="d-flex w-100 position-relative align-items-center">
+                    <!-- Iconos a la izquierda -->
+                    <div class="sidebar-footer-icons mb-0" style="z-index: 2;">
+                         <a href="#" class="footer-icon-small">
+                            <?php readfile('assets/icons/heroicons/outline/phone.svg'); ?>
+                        </a>
+                        <a href="#" class="footer-icon-small">
+                            <?php readfile('assets/icons/heroicons/outline/map-pin.svg'); ?>
+                        </a>
+                        <a href="#" class="footer-icon-small">
+                            <?php readfile('assets/icons/heroicons/outline/globe-alt.svg'); ?>
+                        </a>
+                    </div>
+
+                    <!-- Copyright centrado absolutamente -->
+                    <div class="position-absolute w-100 text-center" style="left: 0; top: 50%; transform: translateY(-50%); z-index: 1;">
+                        <p class="sidebar-copyright m-0">© <?php echo date('Y'); ?> VICE Restaurant.</p>
+                    </div>
                 </div>
-                <p class="sidebar-copyright">© <?php echo date('Y'); ?> VICE Restaurant. Miami Vibes Only.</p>
             </div>
         </div>
     </div>
