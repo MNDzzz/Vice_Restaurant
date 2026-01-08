@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+
 // Routing simple para la aplicación
 $view = isset($_GET['view']) ? $_GET['view'] : 'home';
 
@@ -42,30 +43,32 @@ if ($view === 'admin') {
     <!-- Inicio la barra de navegación -->
     <!-- Configuro la barra de navegación transparente -->
     <nav class="vice-navbar">
-        <div class="container-fluid d-flex justify-content-between align-items-center px-4 py-3">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
             <!-- Coloco el logo tipo script a la izquierda -->
             <a class="navbar-brand-script" href="index.php?view=home">
-                <img src="assets/img/common/vice-logo.svg" alt="Vice" style="height: 40px;">
+                <img src="assets/img/common/vice-logo.svg" alt="Vice">
             </a>
 
-            <!-- Añado los iconos a la derecha -->
-            <div class="d-flex align-items-center gap-4">
-                <!-- Icono de Perfil -->
+            <!-- Botón del menú "hamburguesa" -->
+            <button class="nav-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#viceMenuSidebar">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+
+            </button>
+        </div>
+    </nav>
+
+    <!-- Implemento el menú lateral (Offcanvas) -->
+    <div class="offcanvas offcanvas-end vice-sidebar" tabindex="-1" id="viceMenuSidebar">
+        <div class="offcanvas-header">
+            <!-- Iconos de usuario y carrito (Izquierda) -->
+            <div class="header-icons d-flex gap-4 align-items-center">
                 <a href="index.php?view=<?php echo isset($_SESSION['user_id']) ? 'perfil' : 'login'; ?>"
                     class="nav-icon-link">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
+                    <?php readfile('assets/icons/heroicons/outline/user.svg'); ?>
                 </a>
-
-                <!-- Muestro el icono del carrito de compras -->
                 <a href="index.php?view=carrito" class="nav-icon-link position-relative">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                    </svg>
+                    <?php readfile('assets/icons/heroicons/outline/shopping-bag.svg'); ?>
                     <?php if (isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
                         <span class="badge bg-primary rounded-circle position-absolute top-0 start-100 translate-middle p-1"
                             style="font-size:0.6rem;">
@@ -73,24 +76,11 @@ if ($view === 'admin') {
                         </span>
                     <?php endif; ?>
                 </a>
-
-                <!-- Añado el botón para desplegar el menú -->
-                <button class="nav-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#viceMenuSidebar">
-                    <div class="hamburger-line"></div>
-                    <div class="hamburger-line"></div>
-                </button>
             </div>
-        </div>
-    </nav>
 
-    <!-- Implemento el menú lateral (Offcanvas) -->
-    <div class="offcanvas offcanvas-end vice-sidebar" tabindex="-1" id="viceMenuSidebar">
-        <div class="offcanvas-header">
+            <!-- Botón de cierre (Derecha) -->
             <button type="button" class="btn-close-custom" data-bs-dismiss="offcanvas" aria-label="Close">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+                <?php readfile('assets/icons/heroicons/outline/x-mark.svg'); ?>
             </button>
         </div>
 
@@ -164,29 +154,13 @@ if ($view === 'admin') {
                 <!-- Añado iconos de pie de página y derechos de autor -->
                 <div class="sidebar-footer-icons">
                     <a href="#" class="footer-icon-small">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path
-                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                            </path>
-                        </svg>
+                        <?php readfile('assets/icons/heroicons/outline/phone.svg'); ?>
                     </a>
                     <a href="#" class="footer-icon-small">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
+                        <?php readfile('assets/icons/heroicons/outline/map-pin.svg'); ?>
                     </a>
                     <a href="#" class="footer-icon-small">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                            <path
-                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                            </path>
-                        </svg>
+                        <?php readfile('assets/icons/heroicons/outline/globe-alt.svg'); ?>
                     </a>
                 </div>
                 <p class="sidebar-copyright">© <?php echo date('Y'); ?> VICE Restaurant. Miami Vibes Only.</p>
@@ -235,25 +209,10 @@ if ($view === 'admin') {
                 <img src="assets/img/home/its-a-vice-square.png" alt="#ItsAVice" class="footer-neon-logo">
                 <div class="footer-icons">
                     <!-- Iconos para teléfono, ubicación y web -->
-                    <a href="#" class="footer-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <path
-                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                            </path>
-                        </svg></a>
-                    <a href="#" class="footer-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg></a>
-                    <a href="#" class="footer-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                            <path
-                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                            </path>
-                        </svg></a>
+                    <a href="#" class="footer-icon"><?php readfile('assets/icons/heroicons/outline/phone.svg'); ?></a>
+                    <a href="#" class="footer-icon"><?php readfile('assets/icons/heroicons/outline/map-pin.svg'); ?></a>
+                    <a href="#"
+                        class="footer-icon"><?php readfile('assets/icons/heroicons/outline/globe-alt.svg'); ?></a>
                 </div>
             </div>
         </div>
