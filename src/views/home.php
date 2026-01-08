@@ -3,68 +3,149 @@
         .vice-landing {
             background-color: var(--color-bg);
             color: var(--color-text);
-            overflow-x: hidden;
-            width: 100%;
             width: 100%;
             max-width: 100% !important;
-            /* No uso 100vw para evitar problemas en Windows */
-            overflow-x: hidden !important;
-            overflow-y: visible !important;
-            /* Fuerzo la visibilidad vertical para evitar doble scroll */
             height: auto !important;
-            /* Dejo que la altura sea automática */
         }
 
-        /* FALTA ANIMACION COMO EN LA WEB OG!!!! */
         /* ========================================
-           SECCIÓN 1: FACHADA RESTAURANTE (HERO)
+           Estilos Intro Animada
            ======================================== */
-        .hero-building-section {
-            position: relative;
+
+        /* Fondo inicial fijo */
+        #hero-background-full {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100vh;
-            min-height: 900px;
-            background: url('assets/img/home/hero-building.webp') no-repeat center bottom;
-            background-size: cover;
-            background-color: #FFC0CB;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            justify-content: center;
-            padding-top: 8vh;
-            padding-top: 8vh;
-            padding-top: 8vh;
-            overflow: hidden !important;
-            /* Oculto el desbordamiento para que las imágenes no rompan el layout */
-            width: 100% !important;
+            z-index: 40;
+            /* Debajo de la máscara */
+            /* Zoom inicial suave */
+            transform: scale(1.15);
+            transform-origin: center center;
+            pointer-events: none;
         }
 
-        .building-logo-small {
-            max-width: 250px;
-            width: 35%;
-            height: auto;
-            filter: drop-shadow(0 5px 15px rgba(255, 0, 222, 0.6));
-            opacity: 0;
-            transform: scale(0.8);
+        #hero-background-full img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Máscara SVG */
+        #logo-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 50;
+            /* Aplica la forma del SVG */
+            /* Fondo transparente */
+            background: rgba(255, 255, 255, 0);
+            mask-image: url('assets/img/common/vice-logo-mask.svg');
+            -webkit-mask-image: url('assets/img/common/vice-logo-mask.svg');
+            /* Posición inicial en la I */
+            mask-position: 31.5% 53%;
+            -webkit-mask-position: 31.5% 53%;
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+            /* Tamaño inicial gigante */
+            mask-size: 6000%;
+            -webkit-mask-size: 6000%;
+            pointer-events: none;
+        }
+
+        /* Imagen recortada */
+        #hero-key {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* Zoom sincronizado */
+            transform: scale(1.15);
+            transform-origin: center center;
+        }
+
+        #hero-key-background {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Logo flotante */
+        #hero-logo-overlay {
+            position: fixed;
+            top: 2rem;
+            /* Alineado con menú */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 110;
+            width: 350px;
+            filter: drop-shadow(0 0 30px rgba(255, 0, 222, 0.8));
+            pointer-events: none;
+        }
+
+        /* Texto ayuda */
+        #hero-scroll-indicator {
+            position: fixed;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 110;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            animation: bounce-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce-pulse {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-8px);
+                opacity: 1;
+            }
+        }
+
+        #hero-scroll-indicator span {
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            font-weight: 500;
+        }
+
+        /* Espacio vacío para permitir scroll */
+        .hero-scroll-spacer {
+            height: 150vh;
+            pointer-events: none;
         }
 
         /* ========================================
-           SECCIÓN 2: FONDO OSCURO CON LOGOTIPO GRANDE
+           Sección Principal
            ======================================== */
         .hero-logo-reveal-section {
             position: relative;
             width: 100%;
-            height: 100vh;
-            min-height: 800px;
+            min-height: 100vh;
             background: linear-gradient(180deg, #1C1829 0%, #0f0d1a 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            justify-content: center;
             padding: 60px 20px;
             overflow: hidden;
-            /* Aseguro que el contenido no salga del contenedor */
+            z-index: 5;
         }
 
         .logo-large {
@@ -75,17 +156,12 @@
             filter: drop-shadow(0 0 40px rgba(255, 0, 222, 0.5));
             opacity: 0;
             transform: scale(0.7) translateY(-50px);
-            transform: scale(0.7) translateY(-50px);
-            transform: scale(0.7) translateY(-50px);
-            max-width: 500px;
-            /* Restauro el tamaño máximo correcto del logo */
         }
 
         .hero-text-block {
             text-align: center;
             opacity: 0;
             transform: translateY(30px);
-            /* Aplico el degradado a todo el bloque de texto */
             background: linear-gradient(180deg, #00FFFF 0%, #FF00FF 33%, #FFAA00 66%, #D400FF 100%);
             -webkit-background-clip: text;
             background-clip: text;
@@ -96,10 +172,7 @@
             font-family: var(--font-body);
             font-weight: 600;
             font-size: 2.5rem;
-            font-weight: 600;
-            font-size: 2.5rem;
             color: inherit;
-            /* Heredo el degradado del padre */
             margin: 0 0 10px 0;
             line-height: 1.3;
         }
@@ -108,12 +181,7 @@
             font-family: var(--font-body);
             font-weight: 700;
             font-size: 3rem;
-            font-weight: 700;
-            font-size: 3rem;
-            color: #FFF;
-            /* Fallback */
             background: linear-gradient(90deg, #00FFFF, #FF00FF, #FFAA00, #D400FF);
-            /* Turquesa, Rosa, Naranja, Lila */
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -127,7 +195,6 @@
             margin-top: 20px;
             justify-content: center;
             align-items: center;
-            /* Alineación vertical perfecta */
             flex-wrap: wrap;
         }
 
@@ -143,10 +210,8 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
             position: relative;
-            position: relative;
             z-index: 10;
             backface-visibility: hidden;
-            /* Evito parpadeos en la animación */
             display: inline-block;
         }
 
@@ -156,7 +221,7 @@
             box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
         }
 
-        /* 2. BANNER DE LA CIUDAD (ATARDECER)*/
+        /* Fondo Ciudad */
         .city-banner-section {
             width: 100%;
             height: 100vh;
@@ -167,25 +232,22 @@
             position: relative;
             z-index: 2;
             overflow: hidden;
-            /* Evito scroll horizontal */
         }
 
-        /* CONTENEDOR DIVISOR EN ÁNGULO */
-        /* Para crear el efecto de corte en ángulo entre secciones */
+        /* Corte diagonal */
         .angled-section {
             position: relative;
             z-index: 3;
             background: var(--color-bg);
-            /* Clip path para crear el corte diagonal superior */
+            /* Forma inclinada */
             clip-path: polygon(0 50px, 100% 0, 100% 100%, 0 100%);
             margin-top: -60px;
             padding-top: 100px;
             padding-bottom: 0px;
             overflow: hidden;
-            /* Mantengo el contenido dentro de los bordes inclinados */
         }
 
-        /* 3. UBICACIÓN  */
+        /* Estilos Mapa */
         .location-section {
             text-align: center;
             padding-bottom: 50px;
@@ -209,7 +271,7 @@
             display: block;
         }
 
-        /* 4. BANNER PERSONAJES SOCIAL */
+        /* Banner Personajes */
         .vibe-banner-section {
             width: 100%;
             height: 100vh;
@@ -217,7 +279,6 @@
             position: relative;
             margin-top: -5px;
             overflow: hidden;
-            /* Ya está, pero confirmo */
         }
 
         .vibe-img {
@@ -226,10 +287,9 @@
             object-fit: cover;
             display: block;
             max-width: 100% !important;
-            /* Fuerzo el límite de ancho para evitar que la imagen empuje el contenedor */
         }
 
-        /* 5. SECCIÓN DE POSTS SOCIAL */
+        /* Sección Redes */
         .posts-section-angled {
             position: relative;
             background: var(--color-bg);
@@ -239,7 +299,6 @@
             clip-path: polygon(0 50px, 100% 0, 100% 100%, 0 100%);
             z-index: 4;
             overflow: hidden;
-            /* Oculto elementos que sobresalgan por la rotación */
         }
 
         .posts-container {
@@ -279,7 +338,7 @@
             transform: rotate(1deg);
         }
 
-        /* 6. BANNER PERSONAJE EVENTOS*/
+        /* Banner Eventos */
         .char-car-section {
             width: 100%;
             height: 100vh;
@@ -288,7 +347,6 @@
             position: relative;
             z-index: 1;
             overflow: hidden;
-            /* Ya está, pero confirmo */
         }
 
         .char-car-img {
@@ -297,10 +355,9 @@
             object-fit: cover;
             display: block;
             max-width: 100% !important;
-            /* Restrinjo el ancho de la imagen explicítamente */
         }
 
-        /* 7. SECCIÓN EVENTOS */
+        /* Lista de Eventos */
         .eventos-section-angled {
             background: var(--color-bg);
             margin-top: -80px;
@@ -312,7 +369,6 @@
             padding-bottom: 80px;
             text-align: center;
             overflow: hidden;
-            /* Prevengo desbordamientos en la sección de eventos */
         }
 
         .events-grid {
@@ -335,12 +391,29 @@
         }
     </style>
 
-    <!-- SECCIÓN 1: EDIFICIO CON LOGOTIPO PEQUEÑO -->
-    <div class="hero-building-section">
-        <img src="assets/img/common/vice-logo.svg" alt="Vice Logo" class="building-logo-small">
+    <!-- Fondo inicial completo -->
+    <div id="hero-background-full">
+        <img src="assets/img/home/hero-building.webp" alt="Fondo Inicial">
     </div>
 
-    <!-- SECCIÓN 2: FONDO OSCURO LOGO FRASE -->
+    <!-- Animación Intro -->
+    <div id="logo-mask">
+        <!-- Imagen recortada -->
+        <div id="hero-key">
+            <img id="hero-key-background" src="assets/img/home/hero-building.webp" alt="Vice Restaurant">
+        </div>
+    </div>
+
+    <!-- Elementos flotantes -->
+    <img id="hero-logo-overlay" src="assets/img/common/vice-logo.svg" alt="Vice Logo">
+    <div id="hero-scroll-indicator">
+        <span>Desliza hacia abajo</span>
+    </div>
+
+    <!-- Espaciador -->
+    <div class="hero-scroll-spacer"></div>
+
+    <!-- Contenido Principal -->
     <div class="hero-logo-reveal-section">
         <img src="assets/img/common/vice-logo.svg" alt="Vice Logo" class="logo-large">
         <div class="hero-text-block">
@@ -353,10 +426,10 @@
         </div>
     </div>
 
-    <!-- 2. CITY BANNER -->
+    <!-- Separador -->
     <div class="city-banner-section reveal-scroll"></div>
 
-    <!-- 3. UBICACION -->
+    <!-- Ubicación -->
     <div class="angled-section" id="ubicacion">
         <div class="location-section reveal-scroll">
             <h3 class="section-header-text">UBICACIÓN</h3>
@@ -366,7 +439,7 @@
         </div>
     </div>
 
-    <!-- 3.5 SECCIÓN OFERTAS -->
+    <!-- Promociones -->
     <div class="offers-section reveal-scroll">
         <div class="container py-5">
             <h3 class="section-header-text text-center w-100 mb-5">OFERTAS SEMANALES</h3>
@@ -409,7 +482,7 @@
             position: relative;
             z-index: 3;
             overflow: hidden;
-            /* Añado overflow hidden que faltaba anteriormente */
+            /* Ocultar sobrantes */
         }
 
         .offer-card {
@@ -431,8 +504,7 @@
         }
 
         .chill-mode {
-            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 139, 0.4)), url('assets/img/home/offer-chill.webp');
-            background-size: cover;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 139, 0.4));
             border-color: #0ff;
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
         }
@@ -442,8 +514,7 @@
         }
 
         .party-mode {
-            background: linear-gradient(45deg, rgba(255, 0, 255, 0.1), rgba(139, 0, 139, 0.4)), url('assets/img/home/offer-party.webp');
-            background-size: cover;
+            background: linear-gradient(45deg, rgba(255, 0, 255, 0.1), rgba(139, 0, 139, 0.4));
             border-color: #f0f;
             box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
         }
@@ -497,12 +568,12 @@
         }
     </style>
 
-    <!-- 4. SOCIAL BANNER -->
+    <!-- Banner Personajes -->
     <div class="vibe-banner-section reveal-scroll">
         <img src="assets/img/home/vibe-characters.webp" alt="Vibe" class="vibe-img">
     </div>
 
-    <!-- 5. POSTS SOCIAL -->
+    <!-- Sección Redes -->
     <div class="posts-section-angled reveal-scroll" id="posts">
         <div class="posts-container">
             <div class="posts-left">
@@ -511,7 +582,7 @@
             <div class="posts-right">
                 <div class="section-header-text" style="display:block; text-align:left; margin-left: 10px;">POSTS</div>
                 <div class="posts-row">
-                    <!-- placeholders -->
+                    <!-- Ejemplos -->
                     <img src="assets/img/home/social-post-1.webp" class="post-thumb">
                     <img src="assets/img/home/social-post-1.webp" class="post-thumb">
                     <img src="assets/img/home/social-post-1.webp" class="post-thumb">
@@ -520,7 +591,7 @@
         </div>
     </div>
 
-    <!-- 6. BANNER EVENTOS -->
+    <!-- Banner Eventos -->
     <div class="char-car-section reveal-scroll">
         <img src="assets/img/home/event-character.webp" alt="Character" class="char-car-img">
     </div>
@@ -541,25 +612,63 @@
     document.addEventListener('DOMContentLoaded', () => {
         gsap.registerPlugin(ScrollTrigger);
 
-        // ===== FACHADA RESTAURANTE =====
-        // El logo en la fachada se desvanece y se escala
-        gsap.to('.building-logo-small', {
-            opacity: 1,
-            scale: 1,
-            duration: 1.5,
-            ease: "power2.out",
-            delay: 0.3
+        // ===== Animación Intro =====
+        // Sincronizar con scroll
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: "body", // Usamos el body o el contenedor principal como trigger global
+                start: "top top",
+                end: "+=150%", // Coincide con la altura del spacer
+                scrub: 1
+                // markers: true // Usar para debug si es necesario
+            }
         });
 
-        // ===== SECTION 2: LOGO REVEAL CON SCROLL =====
-        // El logo grande se escala y se desvanece al entrar en la sección
+        // Animación doble capa
+
+        // Calcular tamaño final máscara
+        const finalMaskSize = window.innerWidth * 0.7 > 500 ? "500px" : "70vw";
+
+        tl
+            // 0. Ocultar fondo inicial
+            .to("#hero-background-full", { opacity: 0, duration: 0.1, ease: "power1.out" })
+
+            // 1. Alejar imágenes
+            .to(["#hero-key", "#hero-background-full"], { scale: 1, duration: 1, ease: "power2.out" }, "<")
+
+            // 2. Ocultar elementos flotantes
+            .to(["#hero-logo-overlay", "#hero-scroll-indicator"], { opacity: 0, duration: 0.2 }, "<")
+
+            // 3. Cerrar y centrar máscara
+            // De la I al centro
+            .to("#logo-mask", {
+                maskSize: finalMaskSize,
+                webkitMaskSize: finalMaskSize,
+                maskPosition: "50% 50%",
+                webkitMaskPosition: "50% 50%",
+                duration: 1,
+                ease: "power2.inOut"
+            }, "<")
+
+            // 4. Ocultar máscara
+            .to("#logo-mask", {
+                opacity: 0,
+                display: "none",
+                duration: 0.2,
+                ease: "power1.out"
+            })
+
+            // Limpiar elementos
+            .set(["#hero-logo-overlay", "#hero-scroll-indicator", "#hero-background-full"], { display: "none" });
+
+
+        // ===== Logo Sección 2 =====
         gsap.to('.logo-large', {
             scrollTrigger: {
                 trigger: '.hero-logo-reveal-section',
                 start: "top 80%",
                 end: "top 30%",
                 scrub: 1,
-                // markers: true // descomentar para debugging
             },
             opacity: 1,
             scale: 1,
@@ -567,8 +676,7 @@
             ease: "power2.out"
         });
 
-        // ===== SECTION 2: TEXT BLOCK =====
-        // El bloque de texto se desvanece y se escala al entrar en la sección
+        // ===== Texto Sección 2 =====
         gsap.to('.hero-text-block', {
             scrollTrigger: {
                 trigger: '.hero-logo-reveal-section',
@@ -581,8 +689,7 @@
             ease: "power2.out"
         });
 
-        // ===== SECTION 2: BOTONES =====
-        // Los botones se desvaneecen y se escalan al entrar en la sección
+        // ===== Botones Sección 2 =====
         gsap.from('.hero-buttons a', {
             scrollTrigger: {
                 trigger: '.hero-buttons',
@@ -597,8 +704,7 @@
             ease: "back.out(1.5)"
         });
 
-        // ===== DESPLAZAMIENTO PARALLAX =====
-        // Parallax del banner de la ciudad (el fondo se mueve más lento)
+        // ===== Parallax Ciudad =====
         gsap.to('.city-banner-section', {
             backgroundPosition: "50% 100%",
             ease: "none",
@@ -606,25 +712,12 @@
                 trigger: ".city-banner-section",
                 start: "top bottom",
                 end: "bottom top",
-                scrub: 1 // Desplazamiento suave
-            }
-        });
-
-        // ===== PARALLAX =====
-        // Parallax sutil del edificio héroe
-        gsap.to('.hero-building-section', {
-            backgroundPosition: "50% 80%",
-            ease: "none",
-            scrollTrigger: {
-                trigger: ".hero-building-section",
-                start: "top top",
-                end: "bottom top",
                 scrub: 1
             }
         });
 
-        // ===== REVELACIONES DE SECCIÓN ACTIVADAS POR SCROLL =====
-        // Aparece desde abajo para todas las secciones
+        // ===== Aparición Secciones =====
+        // Animación subida
         gsap.utils.toArray('.reveal-scroll').forEach((section, index) => {
             gsap.from(section, {
                 scrollTrigger: {
@@ -641,7 +734,7 @@
             });
         });
 
-        // ===== IMÁGENES DE PERSONAJES - ESCALAR AL HACER SCROLL =====
+        // ===== Escalar Personajes =====
         gsap.utils.toArray(['.vibe-img', '.char-car-img']).forEach(img => {
             gsap.from(img, {
                 scrollTrigger: {
@@ -655,7 +748,7 @@
             });
         });
 
-        // ===== REVELACIÓN DEL MAPA DE UBICACIÓN =====
+        // ===== Mapa Ubicación =====
         gsap.from('.map-full-width', {
             scrollTrigger: {
                 trigger: '.map-full-width',
@@ -668,8 +761,8 @@
             ease: "power2.out"
         });
 
-        // ===== SECCIÓN DE POSTS =====
-        // Rotación y desvanecimiento del logo #ItsAVice
+        // ===== Posts =====
+        // Animación Logo Neón
         gsap.from('.its-a-vice-neon', {
             scrollTrigger: {
                 trigger: '.its-a-vice-neon',
@@ -683,7 +776,7 @@
             ease: "back.out(1.5)"
         });
 
-        // Escalado y rotación de posts
+        // Animación Posts
         gsap.from('.post-thumb', {
             scrollTrigger: {
                 trigger: '.posts-row',
@@ -698,8 +791,8 @@
             ease: "power2.out"
         });
 
-        // ===== SECCIÓN DE EVENTOS =====
-        // Los flyers de eventos se escalan y aparecen
+        // ===== Eventos =====
+        // Animación Flyers
         gsap.from('.event-flyer', {
             scrollTrigger: {
                 trigger: '.events-grid',
@@ -714,8 +807,8 @@
             ease: "power3.out"
         });
 
-        // ===== ENCABEZADOS DE SECCIÓN =====
-        // Animación de los encabezados de sección (UBICACIÓN, POSTS, EVENTOS)
+        // ===== Títulos =====
+        // Animar encabezados
         gsap.utils.toArray('.section-header-text').forEach(header => {
             gsap.from(header, {
                 scrollTrigger: {
@@ -730,8 +823,8 @@
             });
         });
 
-        // ===== DESPLAZAMIENTO SUAVE (Mejora Opcional) =====
-        // Descomentar para habilitar el comportamiento de scroll suave
+        // ===== Scroll Suave (Opcional) =====
+        // Descomentar para activar
         /*
         ScrollTrigger.normalizeScroll(true);
         ScrollTrigger.config({
