@@ -518,7 +518,7 @@ class ProductManager {
             name: document.getElementById('prodName').value,
             description: document.getElementById('prodDescription').value,
             price: document.getElementById('prodPrice').value,
-            image: document.getElementById('prodImage').value || 'img/default-product.jpg',
+            image: document.getElementById('prodImage').value || 'img/default-product.webp',
             category_id: document.getElementById('prodCategory').value || null
         };
 

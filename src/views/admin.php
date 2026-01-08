@@ -137,7 +137,7 @@ $isSuperAdmin = $userRole === 'superadmin';
                     <div class="mb-3">
                         <label class="form-label">Imagen URL</label>
                         <input type="text" class="form-control bg-secondary text-white border-0" id="prodImage"
-                            placeholder="img/producto.jpg">
+                            placeholder="img/producto.webp">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Categoría</label>
@@ -195,7 +195,7 @@ $isSuperAdmin = $userRole === 'superadmin';
 
 <!-- Paso el rol de usuario a JavaScript -->
 <script>
-        const USER_ROLE = '<?php echo $userRole; ?>';
-        const IS_SUPERADMIN = <?php echo $isSuperAdmin ? 'true' : 'false'; ?>;
+    const USER_ROLE = '<?php echo $userRole; ?>';
+    const IS_SUPERADMIN = <?php echo $isSuperAdmin ? 'true' : 'false'; ?>;
 </script>
 <script src="assets/js/admin.js"></script>

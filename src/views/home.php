@@ -24,7 +24,7 @@
             width: 100%;
             height: 100vh;
             min-height: 900px;
-            background: url('assets/img/home/hero-building.png') no-repeat center bottom;
+            background: url('assets/img/home/hero-building.webp') no-repeat center bottom;
             background-size: cover;
             background-color: #FFC0CB;
             display: flex;
@@ -161,7 +161,7 @@
             width: 100%;
             height: 100vh;
             min-height: 600px;
-            background: url('assets/img/home/city-banner.png') no-repeat center center;
+            background: url('assets/img/home/city-banner.webp') no-repeat center center;
             background-size: cover;
             background-attachment: fixed;
             position: relative;
@@ -361,7 +361,7 @@
         <div class="location-section reveal-scroll">
             <h3 class="section-header-text">UBICACIÓN</h3>
             <div class="location-map-wrapper">
-                <img src="assets/img/home/location-map.png" alt="Map" class="map-full-width">
+                <img src="assets/img/home/location-map.webp" alt="Map" class="map-full-width">
             </div>
         </div>
     </div>
@@ -431,7 +431,7 @@
         }
 
         .chill-mode {
-            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 139, 0.4)), url('assets/img/home/offer-chill.jpg');
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 139, 0.4)), url('assets/img/home/offer-chill.webp');
             background-size: cover;
             border-color: #0ff;
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
@@ -442,7 +442,7 @@
         }
 
         .party-mode {
-            background: linear-gradient(45deg, rgba(255, 0, 255, 0.1), rgba(139, 0, 139, 0.4)), url('assets/img/home/offer-party.jpg');
+            background: linear-gradient(45deg, rgba(255, 0, 255, 0.1), rgba(139, 0, 139, 0.4)), url('assets/img/home/offer-party.webp');
             background-size: cover;
             border-color: #f0f;
             box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
@@ -499,22 +499,22 @@
 
     <!-- 4. SOCIAL BANNER -->
     <div class="vibe-banner-section reveal-scroll">
-        <img src="assets/img/home/vibe-characters.png" alt="Vibe" class="vibe-img">
+        <img src="assets/img/home/vibe-characters.webp" alt="Vibe" class="vibe-img">
     </div>
 
     <!-- 5. POSTS SOCIAL -->
     <div class="posts-section-angled reveal-scroll" id="posts">
         <div class="posts-container">
             <div class="posts-left">
-                <img src="assets/img/home/its-a-vice-square.png" alt="#ItsAVice" class="its-a-vice-neon">
+                <img src="assets/img/home/its-a-vice-square.webp" alt="#ItsAVice" class="its-a-vice-neon">
             </div>
             <div class="posts-right">
                 <div class="section-header-text" style="display:block; text-align:left; margin-left: 10px;">POSTS</div>
                 <div class="posts-row">
                     <!-- placeholders -->
-                    <img src="assets/img/home/social-post-1.png" class="post-thumb">
-                    <img src="assets/img/home/social-post-1.png" class="post-thumb">
-                    <img src="assets/img/home/social-post-1.png" class="post-thumb">
+                    <img src="assets/img/home/social-post-1.webp" class="post-thumb">
+                    <img src="assets/img/home/social-post-1.webp" class="post-thumb">
+                    <img src="assets/img/home/social-post-1.webp" class="post-thumb">
                 </div>
             </div>
         </div>
@@ -522,15 +522,15 @@
 
     <!-- 6. BANNER EVENTOS -->
     <div class="char-car-section reveal-scroll">
-        <img src="assets/img/home/event-character.png" alt="Character" class="char-car-img">
+        <img src="assets/img/home/event-character.webp" alt="Character" class="char-car-img">
     </div>
 
     <!-- 7. EVENTOS -->
     <div class="eventos-section-angled reveal-scroll" id="eventos">
         <h3 class="section-header-text">EVENTOS</h3>
         <div class="events-grid">
-            <img src="assets/img/home/event-flyer-1.png" class="event-flyer">
-            <img src="assets/img/home/event-flyer-2.png" class="event-flyer">
+            <img src="assets/img/home/event-flyer-1.webp" class="event-flyer">
+            <img src="assets/img/home/event-flyer-2.webp" class="event-flyer">
         </div>
     </div>
 

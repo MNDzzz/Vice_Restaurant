@@ -69,7 +69,7 @@ if ($action === 'create_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 'name' => $data['name'],
                 'description' => $data['description'] ?? '',
                 'price' => $data['price'],
-                'image' => $data['image'] ?? 'img/default-product.jpg',
+                'image' => $data['image'] ?? 'img/default-product.webp',
                 'category_id' => $data['category_id'] ?? null
             ]);
 
@@ -96,7 +96,7 @@ if ($action === 'update_product' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 'name' => $data['name'],
                 'description' => $data['description'] ?? '',
                 'price' => $data['price'],
-                'image' => $data['image'] ?? 'img/default-product.jpg',
+                'image' => $data['image'] ?? 'img/default-product.webp',
                 'category_id' => !empty($data['category_id']) ? $data['category_id'] : null
             ]);
 

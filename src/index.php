@@ -146,10 +146,10 @@ if ($view === 'admin') {
             <div class="sidebar-footer">
                 <!-- Fila 1: Botones (Izquierda) - Imagen (Derecha) -->
                 <div class="d-flex w-100 justify-content-between align-items-center mb-5">
-                    
+
                     <!-- Columna 1: Botones Auth -->
                     <div class="footer-col-auth">
-                         <?php if (!isset($_SESSION['user_id'])): ?>
+                        <?php if (!isset($_SESSION['user_id'])): ?>
                             <div class="sidebar-auth-buttons mb-0">
                                 <a href="index.php?view=login" class="btn-sidebar-auth">Login</a>
                                 <a href="index.php?view=register" class="btn-sidebar-auth">Registrarse</a>
@@ -163,7 +163,7 @@ if ($view === 'admin') {
 
                     <!-- Columna 2: Logo Vice (Derecha) -->
                     <div class="footer-col-logo text-end">
-                         <img src="assets/img/common/its-a-vice.png" alt="#ItsAVice" class="sidebar-neon-img">
+                        <img src="assets/img/common/its-a-vice.webp" alt="#ItsAVice" class="sidebar-neon-img">
                     </div>
                 </div>
 
@@ -171,7 +171,7 @@ if ($view === 'admin') {
                 <div class="d-flex w-100 position-relative align-items-center">
                     <!-- Iconos a la izquierda -->
                     <div class="sidebar-footer-icons mb-0" style="z-index: 2;">
-                         <a href="#" class="footer-icon-small">
+                        <a href="#" class="footer-icon-small">
                             <?php readfile('assets/icons/heroicons/outline/phone.svg'); ?>
                         </a>
                         <a href="#" class="footer-icon-small">
@@ -183,7 +183,8 @@ if ($view === 'admin') {
                     </div>
 
                     <!-- Copyright centrado absolutamente -->
-                    <div class="position-absolute w-100 text-center" style="left: 0; top: 50%; transform: translateY(-50%); z-index: 1;">
+                    <div class="position-absolute w-100 text-center"
+                        style="left: 0; top: 50%; transform: translateY(-50%); z-index: 1;">
                         <p class="sidebar-copyright m-0">© <?php echo date('Y'); ?> VICE Restaurant.</p>
                     </div>
                 </div>
@@ -208,7 +209,7 @@ if ($view === 'admin') {
         <div class="vice-footer-container">
             <!-- Rating a la izquierda -->
             <div class="footer-left">
-                <img src="assets/img/common/rating-pending-footer.png" alt="ESRB Rating" class="footer-rating-img">
+                <img src="assets/img/common/rating-pending-footer.webp" alt="ESRB Rating" class="footer-rating-img">
             </div>
 
             <!-- Botones centrales y enlaces legales -->
@@ -229,7 +230,7 @@ if ($view === 'admin') {
 
             <!-- Logo y iconos a la derecha -->
             <div class="footer-right">
-                <img src="assets/img/home/its-a-vice-square.png" alt="#ItsAVice" class="footer-neon-logo">
+                <img src="assets/img/home/its-a-vice-square.webp" alt="#ItsAVice" class="footer-neon-logo">
                 <div class="footer-icons">
                     <!-- Iconos para teléfono, ubicación y web -->
                     <a href="#" class="footer-icon"><?php readfile('assets/icons/heroicons/outline/phone.svg'); ?></a>

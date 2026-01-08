@@ -4,7 +4,7 @@
     <?php if (empty($_SESSION['cart'])): ?>
         <div class="text-center">
             <p class="fs-4">Tu carrito está vacío.</p>
-            <a href="index.php?view=carta" class="btn btn-primary">Ir a la Carta</a>
+            <a href="index.php?view=pedir" class="btn btn-primary">PEDIR YA!</a>
         </div>
     <?php else: ?>
         <div class="row justify-content-center">
@@ -62,9 +62,10 @@
 
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <h3 class="text-primary-custom">Total:
-                                <?php echo CurrencyService::format($detalles['finalTotal']); ?></h3>
+                                <?php echo CurrencyService::format($detalles['finalTotal']); ?>
+                            </h3>
                             <div>
-                                <a href="index.php?view=carta" class="btn btn-secondary me-2">Seguir Pidiendo</a>
+                                <a href="index.php?view=pedir" class="btn btn-secondary me-2">Seguir Pidiendo</a>
                                 <a href="index.php?view=checkout" class="btn btn-primary">Tramitar Pedido</a>
                             </div>
                         </div>

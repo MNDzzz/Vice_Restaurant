@@ -9,14 +9,14 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="vice-menu-page" style="background-color: var(--color-bg); padding-bottom: 80px;">
 
-    <!-- HERO PEQUEÑO -->
+    <!-- Hero del menú -->
     <div class="menu-hero-small"
         style="min-height: 40vh; height: auto; display: flex; align-items: flex-start; justify-content: center; position: relative; padding-top: 0px; padding-bottom: 80px;">
         <img src="assets/img/menu/vice-menu-logo.svg" alt="Vice Menu"
             style="position: relative; z-index: 2; max-width: 90%; width: 750px; margin-top: 0; margin-bottom: 0; filter: drop-shadow(0 0 20px rgba(255, 0, 222, 0.6));">
     </div>
 
-    <!-- BUCLE DE CATEGORÍAS -->
+    <!-- Bucle de categorías -->
     <?php foreach ($categories as $cat): ?>
         <?php
         // Obtengo los productos de la categoría
@@ -27,12 +27,11 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
         if (count($products) == 0)
             continue;
 
-        // Limpio la ruta de la imagen y apunto a la carpeta organizada
-        $filename = basename($cat['image']);
-        $bannerImg = 'assets/img/menu/banners/' . $filename;
+        // Ruta del banner o fallback
+        $bannerImg = strpos($cat['image'], 'img/') === 0 ? 'assets/' . $cat['image'] : 'assets/img/menu/banners/' . basename($cat['image']);
         ?>
 
-        <!-- BANNER DE SECCIÓN -->
+        <!-- Banner de sección -->
         <div class="menu-section-banner" id="<?php echo strtolower($cat['name']); ?>"
             style="background-image: url('<?php echo htmlspecialchars($bannerImg); ?>');">
             <div class="menu-section-overlay"></div>
@@ -41,43 +40,47 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <!-- DISEÑO EDITORIAL DE PRODUCTOS -->
+        <!-- Productos de la categoría -->
         <div class="editorial-container">
             <?php foreach ($products as $prod): ?>
                 <?php
-                // Estandarización de rutas de imagen (Igual que en pedir.php)
+                // Ruta de imagen del producto
+        
                 $filename = basename($prod['image']);
-                $prodImg = 'assets/img/menu/products/' . $filename;
+                $prodImg = strpos($prod['image'], 'img/') === 0 ? 'assets/' . $prod['image'] : 'assets/img/menu/products/' . $filename;
 
-                // Si no existe la imagen, busco alternativa
+                // Si no existe, busco alternativa
                 if (!file_exists(__DIR__ . '/../' . $prodImg)) {
-                    // Pruebo en la carpeta raíz
+                    // Busco en otra carpeta
                     $fallback = 'assets/img/' . $filename;
                     if (file_exists(__DIR__ . '/../' . $fallback)) {
                         $prodImg = $fallback;
+                    } else {
+                        // Si tampoco, uso imagen por defecto
+                        $prodImg = 'assets/img/default-product.webp';
                     }
                 }
                 ?>
                 <div class="editorial-row reveal-row">
-                    <!-- Columna de imagen -->
+                    <!-- Imagen -->
                     <div class="editorial-image-col">
                         <img src="<?php echo htmlspecialchars($prodImg); ?>" class="editorial-img"
                             alt="<?php echo htmlspecialchars($prod['name']); ?>">
                     </div>
-                    <!-- Columna de contenido -->
+                    <!-- Contenido -->
                     <div class="editorial-content-col">
                         <div class="editorial-title"><?php echo htmlspecialchars($prod['name']); ?></div>
                         <div class="editorial-desc"><?php echo htmlspecialchars($prod['description']); ?></div>
                         <span class="editorial-price"><?php echo number_format($prod['price'], 2); ?>€</span>
 
-                        <!-- Botón "Pedir" que actúa como añadir al carrito o redirección -->
+                        <!-- Botón pedir -->
                         <button class="btn btn-editorial" onclick='Cart.add({
                                     id: <?php echo $prod["id"]; ?>, 
                                     name: "<?php echo htmlspecialchars($prod["name"], ENT_QUOTES); ?>", 
                                     price: <?php echo $prod["price"]; ?>, 
                                     image: "<?php echo htmlspecialchars($prodImg, ENT_QUOTES); ?>"
                                 })'>
-                            ORDENAR
+                            PEDIR
                         </button>
                     </div>
                 </div>
@@ -88,14 +91,14 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
 
 </div>
 
-<!-- Script GSAP -->
+<!-- Animaciones GSAP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         gsap.registerPlugin(ScrollTrigger);
 
-        // Revelación del encabezado
+        // Animo el título
         gsap.from('.menu-title-main', {
             duration: 1.5,
             y: 50,
@@ -103,7 +106,7 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
             ease: "power4.out"
         });
 
-        // Títulos de sección (Texto del banner)
+        // Animo los títulos de sección
         gsap.utils.toArray('.reveal-text').forEach(text => {
             gsap.from(text, {
                 scrollTrigger: {
@@ -118,7 +121,7 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
             });
         });
 
-        // Filas editoriales (Imagen/Texto)
+        // Animo las filas de productos
         gsap.utils.toArray('.reveal-row').forEach(row => {
             gsap.to(row, {
                 scrollTrigger: {

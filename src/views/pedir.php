@@ -17,17 +17,26 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-md-3 d-flex flex-column mb-4 mb-md-0 position-relative" style="z-index: 20;">
             <h1 class="mb-4 text-start" style="font-size: 3rem; margin-left: 10px;">Pedidos</h1>
 
-            <!-- Botones de categoría -->
-            <div class="sidebar-buttons d-flex flex-column gap-3 flex-grow-1">
-                <?php foreach ($categories as $index => $cat): ?>
-                    <button class="btn sidebar-pill-btn rounded-pill w-100 <?php echo $index === 0 ? 'active' : ''; ?>"
-                        data-target="<?php echo $cat['id']; ?>" onclick="filterCategory(this, <?php echo $cat['id']; ?>)">
-                        <?php echo htmlspecialchars($cat['name']); ?>
-                    </button>
-                <?php endforeach; ?>
+            <!-- Botones e imagen -->
+            <div class="d-flex align-items-stretch gap-4">
+                <!-- Botones de categoría -->
+                <div class="sidebar-buttons d-flex flex-column gap-3 flex-grow-1" id="category-buttons">
+                    <?php foreach ($categories as $index => $cat): ?>
+                        <button class="btn sidebar-pill-btn rounded-pill w-100 <?php echo $index === 0 ? 'active' : ''; ?>"
+                            data-target="<?php echo $cat['id']; ?>"
+                            onclick="filterCategory(this, <?php echo $cat['id']; ?>)">
+                            <?php echo htmlspecialchars($cat['name']); ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Imagen neón vertical -->
+                <div class="vertical-neon-sidebar d-none d-lg-flex">
+                    <img src="assets/img/pedir/its-a-vice.webp" alt="#Its a Vice" class="vertical-neon-img-sidebar">
+                </div>
             </div>
 
-            <!-- Botón Mi Pedido (Enlazado al carrito) -->
+            <!-- Botón Mi Pedido -->
             <div class="mt-4">
                 <a href="index.php?view=carrito"
                     class="btn sidebar-pill-btn rounded-pill w-100 text-decoration-none d-flex justify-content-center align-items-center">
@@ -36,25 +45,25 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <!-- Imagen de neón vertical (Visible en pantallas grandes) -->
-        <div class="col-md-1 d-none d-md-flex justify-content-center align-items-center position-relative"
+        <!-- Imagen neón para tablets -->
+        <div class="col-md-1 d-none d-md-flex d-lg-none justify-content-center align-items-center position-relative"
             style="z-index: 0;">
             <div class="vertical-neon-container">
-                <img src="assets/img/pedir/its-a-vice.png" alt="#Its a Vice" class="vertical-neon-img">
+                <img src="assets/img/pedir/its-a-vice.webp" alt="#Its a Vice" class="vertical-neon-img">
             </div>
         </div>
 
-        <!-- Cuadrícula de productos / Carrusel -->
-        <div class="col-md-8 position-relative" style="z-index: 20;">
+        <!-- Cuadrícula de productos -->
+        <div class="col-md-8 position-relative ps-5" style="z-index: 20;">
             <div class="products-grid-container">
-                <!-- Banner de Oferta Activa (Dinámico) -->
+                <!-- Banner de oferta -->
                 <?php
                 require_once __DIR__ . '/../services/DiscountService.php';
                 require_once __DIR__ . '/../services/CurrencyService.php';
 
                 $promoStatus = DiscountService::getPromoStatus();
 
-                // Lógica de visualización de banner
+                // Muestro el banner según la promo activa
                 $showChill = ($promoStatus === 'CHILL');
                 $showParty = ($promoStatus === 'PARTY');
                 $isWeekendDay = ($promoStatus === 'PARTY' || $promoStatus === 'WEEKEND_WAIT');
@@ -77,13 +86,12 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col-md-6 col-lg-4 product-item" data-category="<?php echo $prod['category_id']; ?>">
                             <div class="card h-100">
                                 <?php
-                                // Estandarización de rutas de imagen (Igual que en menu.php)
-                                $imgName = basename($prod['image']);
-                                $img_path = 'assets/img/menu/products/' . $imgName;
+                                // Ruta de imagen
+                                $img_path = strpos($prod['image'], 'img/') === 0 ? 'assets/' . $prod['image'] : 'assets/img/menu/products/' . basename($prod['image']);
 
-                                // Fallback por si la imagen no existe
+                                // Si no existe, uso imagen por defecto
                                 if (!file_exists(__DIR__ . '/../' . $img_path)) {
-                                    $img_path = 'assets/img/default-product.jpg';
+                                    $img_path = 'assets/img/default-product.webp';
                                 }
                                 ?>
                                 <img src="<?php echo htmlspecialchars($img_path); ?>" class="card-img-top"
@@ -113,7 +121,7 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-    // Filtro inicial al cargar
+    // Al cargar, filtro por la primera categoría
     document.addEventListener('DOMContentLoaded', () => {
         const activeBtn = document.querySelector('.sidebar-pill-btn.active');
         if (activeBtn) {
@@ -140,7 +148,7 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
         let visibleCount = 0;
         const grid = document.getElementById('products-grid');
 
-        // Reseteo limpio de clases de la cuadrícula
+        // Reseteo clases
         grid.className = 'row g-4';
 
         items.forEach(item => {
@@ -152,7 +160,7 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
             }
         });
 
-        // Lógica del carrusel (> 6 elementos)
+        // Si hay muchos productos, activo el carrusel
         if (visibleCount > 6) {
             grid.classList.add('carousel-mode');
             grid.classList.remove('row');
