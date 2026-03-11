@@ -18,30 +18,36 @@ class CurrencyService
     private static function init()
     {
         if (!self::$initialized) {
-            $configDAO = new ConfigDAO();
-            $config = $configDAO->getAll();
+            try {
+                $configDAO = new ConfigDAO();
+                $config = $configDAO->getAll();
 
-            // Intento obtener el código de moneda (ej: USD)
-            if (isset($config['currency_code'])) {
-                $code = $config['currency_code'];
-                // Si existe en mi lista, uso su símbolo
-                if (isset(self::$codeToSymbol[$code])) {
-                    self::$symbol = self::$codeToSymbol[$code];
-                } else {
-                    self::$symbol = $code; // Si no, uso el código tal cual
+                // Intento obtener el código de moneda (ej: USD)
+                if (isset($config['currency_code'])) {
+                    $code = $config['currency_code'];
+                    // Si existe en mi lista, uso su símbolo
+                    if (isset(self::$codeToSymbol[$code])) {
+                        self::$symbol = self::$codeToSymbol[$code];
+                    } else {
+                        self::$symbol = $code; // Si no, uso el código tal cual
+                    }
+                } elseif (isset($config['currency_symbol'])) {
+                    // Soporte para la versión anterior (por si acaso)
+                    self::$symbol = $config['currency_symbol'];
                 }
-            } elseif (isset($config['currency_symbol'])) {
-                // Soporte para la versión anterior (por si acaso)
-                self::$symbol = $config['currency_symbol'];
-            }
 
-            if (isset($config['currency_rate'])) {
-                self::$rate = floatval($config['currency_rate']);
-            }
+                if (isset($config['currency_rate'])) {
+                    self::$rate = floatval($config['currency_rate']);
+                }
 
-            // Seguridad: Si la tasa es 0 o negativa, vuelvo a 1
-            if (self::$rate <= 0)
+                // Seguridad: Si la tasa es 0 o negativa, vuelvo a 1
+                if (self::$rate <= 0)
+                    self::$rate = 1.0;
+            } catch (Exception $e) {
+                // Si la tabla config no existe u otro error, se deja el default (€ y 1.0)
+                self::$symbol = '€';
                 self::$rate = 1.0;
+            }
 
             self::$initialized = true;
         }

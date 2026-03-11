@@ -4,10 +4,10 @@ class DB
     private static $instance = null;
     private $conn;
 
-    private $host = 'sql310.infinityfree.com';
-    private $user = 'if0_40839903';
-    private $pass = 'O3H5GMyYqn4Av';
-    private $name = 'if0_40839903_vice_db';
+    private $host = 'localhost';
+    private $user = 'root';
+    private $pass = '';
+    private $name = 'vice_db';
 
     private function __construct()
     {

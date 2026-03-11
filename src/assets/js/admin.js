@@ -469,7 +469,7 @@ class ProductManager {
             html += products.map(p => `
                 <tr>
                     <td>${p.id}</td>
-                    <td><img src="${Utils.escapeHtml(p.image)}" alt="${Utils.escapeHtml(p.name)}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
+                    <td><img src="${p.image.includes('assets/') ? p.image : 'assets/img/menu/products/' + p.image.split('/').pop()}" onerror="this.src='assets/img/default-product.webp'" alt="${Utils.escapeHtml(p.name)}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
                     <td>${Utils.escapeHtml(p.name)}</td>
                     <td><small>${Utils.escapeHtml((p.description || '').substring(0, 50))}${p.description?.length > 50 ? '...' : ''}</small></td>
                     <td><strong>${parseFloat(p.price).toFixed(2)}€</strong></td>
@@ -518,7 +518,7 @@ class ProductManager {
             name: document.getElementById('prodName').value,
             description: document.getElementById('prodDescription').value,
             price: document.getElementById('prodPrice').value,
-            image: document.getElementById('prodImage').value || 'img/default-product.webp',
+            image: document.getElementById('prodImage').value || 'default-product.webp',
             category_id: document.getElementById('prodCategory').value || null
         };
 

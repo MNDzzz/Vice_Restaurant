@@ -87,15 +87,11 @@ $all_products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
                             <div class="card h-100">
                                 <?php
                                 // Ruta de imagen
-                                $img_path = strpos($prod['image'], 'img/') === 0 ? 'assets/' . $prod['image'] : 'assets/img/menu/products/' . basename($prod['image']);
-
-                                // Si no existe, uso imagen por defecto
-                                if (!file_exists(__DIR__ . '/../' . $img_path)) {
-                                    $img_path = 'assets/img/default-product.webp';
-                                }
+                                $img_filename = basename($prod['image']);
+                                $img_path = strpos($prod['image'], 'img/') === 0 ? 'assets/' . $prod['image'] : 'assets/img/menu/products/' . $img_filename;
                                 ?>
                                 <img src="<?php echo htmlspecialchars($img_path); ?>" class="card-img-top"
-                                    alt="<?php echo htmlspecialchars($prod['name']); ?>">
+                                    alt="<?php echo htmlspecialchars($prod['name']); ?>" onerror="this.onerror=null; this.src='assets/img/default-product.webp';">
                                 <div class="card-body d-flex flex-column p-3">
                                     <h5 class="card-title mb-1"><?php echo htmlspecialchars($prod['name']); ?></h5>
                                     <div class="d-flex justify-content-between align-items-center mt-2">

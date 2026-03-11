@@ -44,28 +44,15 @@ $categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
         <div class="editorial-container">
             <?php foreach ($products as $prod): ?>
                 <?php
-                // Ruta de imagen del producto
-        
+                // Ruta de imagen del producto simple
                 $filename = basename($prod['image']);
                 $prodImg = strpos($prod['image'], 'img/') === 0 ? 'assets/' . $prod['image'] : 'assets/img/menu/products/' . $filename;
-
-                // Si no existe, busco alternativa
-                if (!file_exists(__DIR__ . '/../' . $prodImg)) {
-                    // Busco en otra carpeta
-                    $fallback = 'assets/img/' . $filename;
-                    if (file_exists(__DIR__ . '/../' . $fallback)) {
-                        $prodImg = $fallback;
-                    } else {
-                        // Si tampoco, uso imagen por defecto
-                        $prodImg = 'assets/img/default-product.webp';
-                    }
-                }
                 ?>
                 <div class="editorial-row reveal-row">
                     <!-- Imagen -->
                     <div class="editorial-image-col">
                         <img src="<?php echo htmlspecialchars($prodImg); ?>" class="editorial-img"
-                            alt="<?php echo htmlspecialchars($prod['name']); ?>">
+                            alt="<?php echo htmlspecialchars($prod['name']); ?>" onerror="this.onerror=null; this.src='assets/img/default-product.webp';">
                     </div>
                     <!-- Contenido -->
                     <div class="editorial-content-col">
